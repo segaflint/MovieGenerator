@@ -25,7 +25,7 @@ public class DatabaseLayer {
     final private int SethMode = 1;
     private int userMode = 1; // CALEB! Edit this number to 0 on your local to run it for now.
 
-    private String CalebUrl = "CalebTODO";
+    private String CalebUrl = "jdbc:sqlite:/Users/caleb/Desktop/MovieGenerator.db";
     private String SethUrl = "jdbc:sqlite:/Users/sethrasmusson/Documents/CS364_DB/Databases/MovieGenerator.db";
 
     private String url;
@@ -52,7 +52,7 @@ public class DatabaseLayer {
 
     // Reconnects to the url; should be called immediately after a context switch
     private void refreshConnection() throws SQLException {
-        connection.close();
+        if(connection != null) connection.close();
         connection = DriverManager.getConnection(url);
     }
 
