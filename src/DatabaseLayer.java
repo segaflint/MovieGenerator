@@ -77,6 +77,12 @@ public class DatabaseLayer {
     public int getUser(String username, String password) {
         //CalebTODO
 
+        if (Select UserId From User Where UserName = username AND Password = password) {
+            return UserId;
+        } else {
+            return -1;
+        }
+
         //if user with 'username' and 'password' exists, return the userId of that user
         //else return -1 on no user or error.
         return -1;
@@ -85,6 +91,8 @@ public class DatabaseLayer {
     // Returns True if a user was successfully created, false, if user already exists or insert failed
     public int createNewUser(String username, String password) {
         //CalebTODO
+
+
 
         // check if user with 'username' exists in the database
             // if it does, return -1
