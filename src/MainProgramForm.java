@@ -17,5 +17,6 @@ public class MainProgramForm {
         parentFrame = pFrame;
         this.userId = userId;
         parentFrame.pack();
+        parentFrame.setTitle("Movie Generator");
     }
 }
