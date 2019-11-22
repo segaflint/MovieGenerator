@@ -25,7 +25,7 @@ public class DatabaseLayer {
     final private int SethMode = 1;
     private int userMode = 1; // CALEB! Edit this number to 0 on your local to run it for now.
 
-    private String CalebUrl;
+    private String CalebUrl = "CalebTODO";
     private String SethUrl = "jdbc:sqlite:/Users/sethrasmusson/Documents/CS364_DB/Databases/MovieGenerator.db";
 
     private String url;
@@ -64,6 +64,7 @@ public class DatabaseLayer {
         connection.close();
     }
 
+    // Returns a Result set from any given query script given
     public ResultSet runQuery(String query) throws SQLException {
         // Create a statement preparing for an SQL query
         PreparedStatement stmt = connection.prepareStatement(query);

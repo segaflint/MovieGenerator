@@ -1,9 +1,7 @@
-import javax.swing.*;
-import java.sql.SQLException;
 
 public class Main {
 
-
+    // DO NOT TOUCH MAIN
     public static void main(String[] args){
         DatabaseLayer dataLayer = new DatabaseLayer();
 
