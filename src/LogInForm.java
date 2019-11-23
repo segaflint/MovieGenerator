@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class LogInForm {
 
@@ -71,13 +72,14 @@ public class LogInForm {
     }
 
     private void startUpMainPanel() {
+        mainPanel.setVisible(false);
         parentFrame.setContentPane(new MainProgramForm(dataLayer, parentFrame, userId).getMainPanel());
     }
 
     /*
      *ACTION LISTENERS
      */
-    public void initializeListeners() {
+    private void initializeListeners() {
 
         // NEW USER BUTTON
         createNewUserButton.addActionListener(new ActionListener() {
@@ -102,11 +104,14 @@ public class LogInForm {
         logInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String userName = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+
                 if(mode == logInModeEnum.EXISTING_USER) { // mode is existing user
-                    if(usernameField.getText().compareTo("") == 0 || passwordField.getPassword().toString().compareTo("") == 0) {
+                    if(userName.compareTo("") == 0 || password.compareTo("") == 0) {
                         messageLabel.setText("Please enter values for username/password"); // empty username or password
                         messageLabel.setForeground(Color.RED);
-                    } else if((userId = dataLayer.getUser(usernameField.getText(), passwordField.getPassword().toString())) == -1) {
+                    } else if((userId = dataLayer.getUser(userName, password)) == -1) {
                         // no user exists by this username or password
                         messageLabel.setText("Incorrect username or password.");
                         messageLabel.setForeground(Color.RED);
@@ -115,18 +120,18 @@ public class LogInForm {
                     }
 
                 } else { // Mode is create new user
-                    if(usernameField.getText().compareTo("") == 0 ||
-                            passwordField.getPassword().toString().compareTo("") == 0) {
+                    if(userName.compareTo("") == 0 ||
+                            password.compareTo("") == 0) {
                         messageLabel.setText("Please enter values for username/password"); // empty username or password
                         messageLabel.setForeground(Color.RED);
-                    } else if(usernameField.getText().length() > 20){ // username too long
+                    } else if(userName.length() > 20){ // username too long
                         messageLabel.setText("Please limit your username to 20 characters.");
                         messageLabel.setForeground(Color.RED);
-                    } else if (passwordField.getPassword().toString().length() > 20) { // password too long
+                    } else if (password.length() > 20) { // password too long
                         messageLabel.setText("Please limit your password to 20 characters.");
                         messageLabel.setForeground(Color.RED);
-                    } else if ((userId = dataLayer.createNewUser(usernameField.getText(),
-                            passwordField.getPassword().toString())) == -1) { // username already exists or error case
+                    } else if ((userId = dataLayer.createNewUser(userName,
+                            password)) == -1) { // username already exists or error case
                         messageLabel.setText("Please choose a different username.");
                         messageLabel.setForeground(Color.RED);
                     } else {// successful creation.

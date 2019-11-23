@@ -76,7 +76,9 @@ public class DatabaseLayer {
     }
 
     public int getUser(String username, String password) {
-        String query = "SELECT * FROM ? WHERE ? = ? AND ? = ? ";
+        String query = "SELECT * FROM " + UserTable.TABLE_NAME + " WHERE " + UserTable.USER_NAME_COLUMN_NAME + " = '"
+        +  username + "' AND " + UserTable.PASSWORD_COLUMN_NAME + " = '" + password + "'";
+
         ResultSet results;
         int userId;
 
@@ -84,14 +86,9 @@ public class DatabaseLayer {
         //else return -1 on no user or error.
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, UserTable.TABLE_NAME);
-            stmt.setString(2, UserTable.USER_NAME_COLUMN_NAME);
-            stmt.setString(3, username);
-            stmt.setString(4, UserTable.PASSWORD_COLUMN_NAME);
-            stmt.setString(5, password);
 
             results = stmt.executeQuery();
-            if(!results.first()) { // no results
+            if(!results.next()) { // no results
                 return -1;
             }
 
