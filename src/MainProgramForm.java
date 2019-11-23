@@ -7,6 +7,7 @@ public class MainProgramForm {
     private JFrame parentFrame;
     private int userId;
     private JPanel mainPanel;
+    private JButton changeUserButton;
 
     public JPanel getMainPanel() {
         return mainPanel;

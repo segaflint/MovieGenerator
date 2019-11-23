@@ -1,4 +1,5 @@
 import java.sql.*;
+import Constants.DataTables.*;
 
 /*
  *
@@ -23,7 +24,7 @@ public class DatabaseLayer {
 
     final private int CalebMode = 0;
     final private int SethMode = 1;
-    private int userMode = 1; // CALEB! Edit this number to 0 on your local to run it for now.
+    private int userMode = 1;
 
     private String CalebUrl = "jdbc:sqlite:/Users/caleb/Desktop/MovieGenerator.db";
     private String SethUrl = "jdbc:sqlite:/Users/sethrasmusson/Documents/CS364_DB/Databases/MovieGenerator.db";
@@ -75,17 +76,31 @@ public class DatabaseLayer {
     }
 
     public int getUser(String username, String password) {
-        //CalebTODO
-
-        if (Select UserId From User Where UserName = username AND Password = password) {
-            return UserId;
-        } else {
-            return -1;
-        }
+        String query = "SELECT * FROM ? WHERE ? = ? AND ? = ? ";
+        ResultSet results;
+        int userId;
 
         //if user with 'username' and 'password' exists, return the userId of that user
         //else return -1 on no user or error.
-        return -1;
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, UserTable.TABLE_NAME);
+            stmt.setString(2, UserTable.USER_NAME_COLUMN_NAME);
+            stmt.setString(3, username);
+            stmt.setString(4, UserTable.PASSWORD_COLUMN_NAME);
+            stmt.setString(5, password);
+
+            results = stmt.executeQuery();
+            if(!results.first()) { // no results
+                return -1;
+            }
+
+            userId = results.getInt(UserTable.USER_ID_COLUMN_NAME);
+        } catch (SQLException e) { // error
+            return -1;
+        }
+
+        return userId;
     }
 
     // Returns True if a user was successfully created, false, if user already exists or insert failed
