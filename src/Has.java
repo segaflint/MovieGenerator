@@ -1,6 +1,6 @@
 public class Has {
 
-    public int UserId;
-    public int ConfigurationId;
+    public int userId;
+    public int configurationId;
 
 }

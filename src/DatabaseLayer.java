@@ -1,4 +1,5 @@
 import java.sql.*;
+import Constants.*;
 import Constants.DataTables.*;
 
 /*
@@ -118,6 +119,14 @@ public class DatabaseLayer {
 
         //run query, examine result and see if valid
         return 0;
+    }
+
+    // WAIT TO IMPLEMENT. Should be a final touch.
+    // Return true if user with userId is an admin.
+    public boolean isAdmin(int userId) {
+        //query the database for user with userId. Create admin flag column in the user table and check if char is Y.
+        // if is Y, return true. Otherwise false
+        return false;
     }
 
     /*

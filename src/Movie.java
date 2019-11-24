@@ -1,10 +1,10 @@
 public class Movie {
 
-    public int MovieId;
-    public String Title;
-    public String Genre;
-    public int ReleaseYear;
-    public String Rating;
-    public String Director;
+    public int movieId;
+    public String title;
+    public String genre;
+    public int releaseYear;
+    public String rating;
+    public String director;
 
 }

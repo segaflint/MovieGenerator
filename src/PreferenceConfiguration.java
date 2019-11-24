@@ -1,10 +1,11 @@
 public class PreferenceConfiguration {
 
-    public int ConfigurationId;
-    public int ReleaseYearFrom;
-    public int ReleaseYearTo;
+    public int configurationId;
+    public int configurationName;
+    public int releaseYearFrom;
+    public int releaseYearTo;
     public String Director;
-    public String Rating;
-    public String Genre;
+    public String rating;
+    public String genre;
 
 }

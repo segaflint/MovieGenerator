@@ -94,6 +94,7 @@ public class LogInForm {
     private void startUpMainPanel() {
         mainPanel.setVisible(false);
         parentFrame.setContentPane(new MainProgramForm(dataLayer, parentFrame, userId, this).getMainPanel());
+        parentFrame.pack();
     }
 
     /*
