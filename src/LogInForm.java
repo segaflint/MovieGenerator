@@ -21,10 +21,6 @@ public class LogInForm {
     private JComboBox contextComboBox;
     private JLabel contextLabel;
 
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
-
     private logInModeEnum mode;
     private DatabaseLayer dataLayer;
 
@@ -34,6 +30,7 @@ public class LogInForm {
         EXISTING_USER, CREATE_USER;
     }
 
+    //Constructor
     public LogInForm(DatabaseLayer databaseLayer, JFrame pFrame) {
         mode = logInModeEnum.EXISTING_USER;
         parentFrame = pFrame;
@@ -55,6 +52,28 @@ public class LogInForm {
 
     }
 
+    /*
+     * GETTERS
+     */
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    /*
+     * SETTERS
+     */
+
+    /*
+     *  PUBLIC METHODS
+     */
+    public void setPasswordField(String password) {
+        passwordField.setText(password);
+    }
+
+    /*
+     * PRIVATE METHODS
+     */
+
     // Disable log in components
     private void disableLoginComponents(){
         usernameField.setEnabled(false);
@@ -71,9 +90,10 @@ public class LogInForm {
         logInButton.setEnabled(true);
     }
 
+    // Show the main program panel
     private void startUpMainPanel() {
         mainPanel.setVisible(false);
-        parentFrame.setContentPane(new MainProgramForm(dataLayer, parentFrame, userId).getMainPanel());
+        parentFrame.setContentPane(new MainProgramForm(dataLayer, parentFrame, userId, this).getMainPanel());
     }
 
     /*
