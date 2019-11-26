@@ -25,6 +25,7 @@ public class MainProgramForm {
     private JButton saveConfigurationButton;
     private JTextField saveConfigurationAsTextField;
     private JLabel saveConfigurationAsLabel;
+    private JList list1;
     private JLabel TestLabel;
     private LogInForm logInForm;
 
@@ -93,6 +94,11 @@ public class MainProgramForm {
             ratingComboBox.addItem(rating);
         }
 
+    }
+
+    // Show a specified preference configuration in the configuration editor
+    private void showPreferenceConfiguration(PreferenceConfiguration configuration) {
+       // movieTitleLabel.setText(configuration.get);
     }
 
     /*

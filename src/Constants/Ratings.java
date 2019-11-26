@@ -7,6 +7,15 @@ public enum Ratings {
     PG,
     G;
 
+    // get an enum based on the string passed in.
+    public Ratings getEnum(String rating) {
+        if(rating.compareTo("R") == 0) return R;
+        else if(rating.compareTo("PG-13") == 0) return PG13;
+        else if(rating.compareTo("PG") == 0) return PG;
+        else if(rating.compareTo("G") == 0) return G;
+        else return ANY_RATING; // ANY_RATING or error
+    }
+
     @Override
     public String toString() {
         if(this == R) return "R";
