@@ -112,14 +112,32 @@ public class DatabaseLayer {
     // Return the count of movies watched by the user with userId. User will always only exist when this gets called.
     // Return 0 if none watched or error occurs.
     public int getMoviesWatchedCount(int userId) {
-        //CalebTODO 1
+        //CalebTODO
+        String query = " SELECT count(*) FROM " + UserTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME
+                + " ON " + UserTable.USER_ID_COLUMN_NAME + " = " + HasWatchedTable.USER_ID_COLUMN_NAME + " GROUP BY "
+                + UserTable.TABLE_NAME + " HAVING " + UserTable.USER_ID_COLUMN_NAME + " = '" + userId + "'";
 
+        ResultSet results;
+        int movieCount;
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+
+            results = stmt.executeQuery();
+
+            movieCount = results.getInt(query);
+
+
+            return movieCount;
+
+        } catch (SQLException e) { // error
+            return 0;
+        }
         //Set up query string. SELECT count(*) from User u JOIN Has_Watched hw on u.userId = hw.userId GROUP BY u.userId, count(*)
         //HAVING userId = userId
         //or something like this. Check your query in SQLite
 
         //run query, examine result and see if valid
-        return 0;
     }
 
     // WAIT TO IMPLEMENT. Should be a final touch.
@@ -168,6 +186,7 @@ public class DatabaseLayer {
         if(connection != null) connection.close();
         connection = DriverManager.getConnection(url);
     }
+
 
 
 //    public ResultSet employeeLookup(String ssn) throws SQLException {
