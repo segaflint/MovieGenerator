@@ -112,6 +112,10 @@ public class DatabaseLayer {
     // Return 0 if none watched or error occurs.
     public int getMoviesWatchedCount(int userId) {
         //CalebTODO
+        String query = " SELECT count(*) FROM " + UserTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME
+                + " ON " + UserTable.USER_ID_COLUMN_NAME + " = " + HasWatchedTable.USER_ID_COLUMN_NAME + " GROUP BY "
+                + UserTable.TABLE_NAME + " HAVING " + UserTable.USER_ID_COLUMN_NAME + " = '" + userId + "'";
+
 
         //Set up query string. SELECT count(*) from User u JOIN Has_Watched hw on u.userId = hw.userId GROUP BY u.userId, count(*)
         //HAVING userId = userId
