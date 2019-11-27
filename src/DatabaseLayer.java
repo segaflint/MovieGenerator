@@ -1,6 +1,7 @@
 import java.sql.*;
 import Constants.*;
 import Constants.DataTables.*;
+import java.time.*;
 
 /*
  *
@@ -111,7 +112,7 @@ public class DatabaseLayer {
     // Return the count of movies watched by the user with userId. User will always only exist when this gets called.
     // Return 0 if none watched or error occurs.
     public int getMoviesWatchedCount(int userId) {
-        //CalebTODO
+        //CalebTODO 1
 
         //Set up query string. SELECT count(*) from User u JOIN Has_Watched hw on u.userId = hw.userId GROUP BY u.userId, count(*)
         //HAVING userId = userId
@@ -135,7 +136,7 @@ public class DatabaseLayer {
 
     // Returns userId if a user was successfully created, -1, if user already exists or insert failed
     public int createNewUser(String username, String password) {
-        //CalebTODO
+        //CalebTODO 2
 
         // CALEB! see the getUser method for examples of how to put the table name, column names into a string from the
         // tables enums packages I created. These are located in "Constants>DataTables" If you'd like to look at them.
@@ -149,6 +150,15 @@ public class DatabaseLayer {
         return -1;
     }
 
+    // returns 0 if successful insertion of configuration, -1 otherwise
+    public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
+        //CalebTODO 3
+
+        //First, insert the configuration from the object 'configuration' that was passed in by doing an insert
+        //into preference configurations with 'configuration's and insert into 'has' with the configuration you just made
+        return -1;
+    }
+
     /*
      * PRIVATE METHODS
      */
@@ -158,7 +168,6 @@ public class DatabaseLayer {
         if(connection != null) connection.close();
         connection = DriverManager.getConnection(url);
     }
-
 
 
 //    public ResultSet employeeLookup(String ssn) throws SQLException {

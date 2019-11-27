@@ -1,5 +1,8 @@
+import Constants.DataTables.PreferenceConfigurationTable;
+
 import javax.xml.transform.Result;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class PreferenceConfiguration {
 
@@ -28,12 +31,24 @@ public class PreferenceConfiguration {
 
     // Constructor based on a result set
     public PreferenceConfiguration(ResultSet result) {
-
+        try {
+            if(result.next()) {
+                configurationId = result.getInt(PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME);
+                configurationName = result.getString(PreferenceConfigurationTable.CONFIGURATION_NAME_COLUMN_NAME);
+                releaseYearFrom = result.getInt(PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME);
+                releaseYearTo = result.getInt(PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME);
+                director = result.getString(PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME);
+                rating = result.getString(PreferenceConfigurationTable.RATING_COLUMN_NAME);
+                genre = result.getString(PreferenceConfigurationTable.GENRE_COLUMN_NAME);
+            }
+        } catch (SQLException e) {
+            configurationName = "SQLerror";
+        }
     }
 
 
     /*
-     * SETTERS
+     * GETTERS
      */
     public int getConfigurationId() {
         return configurationId;

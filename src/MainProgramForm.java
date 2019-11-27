@@ -1,13 +1,15 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
 import Constants.*;
 
 public class MainProgramForm {
-    private DatabaseLayer dataLayer;
+
+    //GUI components
     private JFrame parentFrame;
-    private int userId;
-    private boolean isAdmin;
     private JPanel mainPanel;
     private JButton changeUserButton;
     private JLabel movieCountLable;
@@ -25,9 +27,14 @@ public class MainProgramForm {
     private JButton saveConfigurationButton;
     private JTextField saveConfigurationAsTextField;
     private JLabel saveConfigurationAsLabel;
-    private JList list1;
+    private JCheckBox userHasWatchedCheckBox;
     private JLabel TestLabel;
     private LogInForm logInForm;
+
+    // global variables
+    private int userId;
+    private boolean isAdmin;
+    private DatabaseLayer dataLayer;
 
     //Constructor
     public MainProgramForm(DatabaseLayer databaseLayer, JFrame pFrame, int userId, LogInForm form) {
@@ -48,7 +55,6 @@ public class MainProgramForm {
         //initialize components
         initializeActionListenters();
         initializeComboBoxes();
-
     }
 
     /*
@@ -90,6 +96,7 @@ public class MainProgramForm {
             releaseYearToComboBox.addItem(i);
         }
 
+        // ratingComboBox
         for(Ratings rating : Ratings.values()) {
             ratingComboBox.addItem(rating);
         }
@@ -120,6 +127,18 @@ public class MainProgramForm {
                 parentFrame.setContentPane(logInForm.getMainPanel());
                 parentFrame.pack();
                 parentFrame.setTitle("Log In to Movie Generator");
+            }
+
+        });
+
+        userHasWatchedCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+              if(e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+
+              } else  { // is deselected
+
+              }
             }
         });
 
