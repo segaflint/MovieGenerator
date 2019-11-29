@@ -154,7 +154,6 @@ public class DatabaseLayer {
 
     // Returns userId if a user was successfully created, -1, if user already exists or insert failed
     public int createNewUser(String username, String password) {
-        //CalebTODO 2
 
         // CALEB! see the getUser method for examples of how to put the table name, column names into a string from the
         // tables enums packages I created. These are located in "Constants>DataTables" If you'd like to look at them.
@@ -170,16 +169,35 @@ public class DatabaseLayer {
 
     // returns 0 if successful insertion of configuration, -1 otherwise
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
-        //CalebTODO 3
+        //CalebTODO 1
 
         //First, insert the configuration from the object 'configuration' that was passed in by doing an insert
         //into preference configurations with 'configuration's and insert into 'has' with the configuration you just made
         return -1;
     }
 
-    // Return an array of
+    // Return an array of Preference Configurations belonging to the user with userId
     public ArrayList<PreferenceConfiguration> getUserConfigurations(int userId) {
+        //CalebTODO 2
         ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
+        return configurationsList;
+    }
+
+    // Generate a movie based on the given preference configuration
+    public Movie generateMovie(PreferenceConfiguration configuration, boolean includeWatchedMovies) {
+        //CalebTODO 3
+        Movie movie;
+
+        return null;
+    }
+
+    public Movie generateRandomMovie(){// USES OFFSET
+        // CalebTODO 4
+        // generate totally random movie
+        // QUERY1 first get count(*) of all movies and use that to generate a random number between 0 and the count
+        // QUERY2 then use that random number in a query where you limit 1 and offset by the random number.
+        Movie movie;
+
         return null;
     }
 

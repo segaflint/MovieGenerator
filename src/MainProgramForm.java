@@ -3,9 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.List;
 
 import Constants.*;
 
@@ -32,9 +30,10 @@ public class MainProgramForm {
     private JLabel saveConfigurationAsLabel;
     private JCheckBox includeHasWatchedCheckBox;
     private JCheckBox anyYearCheckBox;
-    private JButton generateMovieButton;
+    private JButton generateMovieByConfigurationButton;
     private JLabel yourConfigurationsLabel;
     private JComboBox configurationsComboBox;
+    private JButton generateTotallyRandomMovieButton;
     private JLabel TestLabel;
     private LogInForm logInForm;
 
@@ -43,9 +42,10 @@ public class MainProgramForm {
     private int userId;
     private DatabaseLayer dataLayer;
     private boolean includeWatchedMovies = false;
-    private boolean includeAnyYear = false;
+    private char includeAnyYear = 'N';
     private boolean isAdmin;
     private boolean configurationIsEdited = false;
+    private Movie movieGenerated;
 
     //Constructor
     public MainProgramForm(DatabaseLayer databaseLayer, JFrame pFrame, int userId, LogInForm form) {
@@ -128,8 +128,8 @@ public class MainProgramForm {
 //        ArrayList<PreferenceConfiguration> configurationArrayList = dataLayer.getUserConfigurations(userId);
         ArrayList<PreferenceConfiguration> configurationArrayList = new ArrayList<>();
 
-        configurationArrayList.add(new PreferenceConfiguration(3, "Jeff", 3, 4, "John boy", "R", "action"));
-        configurationArrayList.add(new PreferenceConfiguration(3, "Jesad", 4, 6, "Josadhn boy", "R", "action"));
+        configurationArrayList.add(new PreferenceConfiguration(3, "Jeff", 'N', 3, 4, "John boy", "R", "action"));
+        configurationArrayList.add(new PreferenceConfiguration(3, "Jesad", 'N', 4, 6, "Josadhn boy", "R", "action"));
 
         configurationsComboBox.addItem(new PreferenceConfiguration(NEW_CONFIGURATION));
         for (PreferenceConfiguration pc : configurationArrayList) {
@@ -162,8 +162,19 @@ public class MainProgramForm {
        for( int i = 0; i < genreComboBox.getItemCount(); i++ ) {
            if(configuration.getGenre().compareTo(genreComboBox.getItemAt(i).toString()) == 0){
                genreComboBox.setSelectedIndex(i);
+               break;
            }
        }
+
+       for( int i = 0; i < ratingComboBox.getItemCount(); i++ ) {
+           if(configuration.getGenre().compareTo(ratingComboBox.getItemAt(i).toString()) == 0){
+               ratingComboBox.setSelectedIndex(i);
+               break;
+           }
+       }
+
+       directorTextField.setText(configuration.getDirector());
+
     }
 
     /*
@@ -214,11 +225,11 @@ public class MainProgramForm {
                 if(e.getStateChange() == ItemEvent.SELECTED) { // if is selected
                     releaseYearFromComboBox.setEnabled(false);
                     releaseYearToComboBox.setEnabled(false);
-                    includeAnyYear = true;
+                    includeAnyYear = 'Y';
                 } else { // is deselected
                     releaseYearFromComboBox.setEnabled(true);
                     releaseYearToComboBox.setEnabled(true);
-                    includeAnyYear = false;
+                    includeAnyYear = 'N';
                 }
             }
         });
@@ -265,6 +276,38 @@ public class MainProgramForm {
                 } else {// Selected Config
                     showPreferenceConfiguration((PreferenceConfiguration) configurationsComboBox.getSelectedItem());
                 }
+            }
+        });
+
+        generateMovieByConfigurationButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(configurationIsEdited){ // if any configuration has been edited, use the contents of the editor
+                    movieGenerated = dataLayer.generateMovie(new PreferenceConfiguration(userId, "", includeAnyYear,
+                            (int) releaseYearFromComboBox.getSelectedItem(), (int) releaseYearToComboBox.getSelectedItem(),
+                            directorTextField.getText(), ratingComboBox.getSelectedItem().toString(),
+                            genreComboBox.getSelectedItem().toString()), includeWatchedMovies);
+                } else  {
+                    movieGenerated = dataLayer.generateMovie((PreferenceConfiguration) configurationsComboBox.getSelectedItem(),
+                            includeWatchedMovies);
+                }
+            }
+        });
+
+        generateTotallyRandomMovieButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                movieGenerated = dataLayer.generateRandomMovie(); 
             }
         });
     }
