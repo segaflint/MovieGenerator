@@ -2,6 +2,8 @@ import java.sql.*;
 import Constants.*;
 import Constants.DataTables.*;
 import java.time.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  *
@@ -87,11 +89,12 @@ public class DatabaseLayer {
     //if user with 'username' and 'password' exists, return the userId of that user
     //else return -1 on no user or error.
     public int getUser(String username, String password) {
-        String query = "SELECT * FROM " + UserTable.TABLE_NAME + " WHERE " + UserTable.USER_NAME_COLUMN_NAME + " = '"
-        +  username + "' AND " + UserTable.PASSWORD_COLUMN_NAME + " = '" + password + "'";
-
         ResultSet results;
         int userId;
+
+        // SELECT * FROM User WHERE UserName = 'username' AND Password = 'password'
+        String query = "SELECT * FROM " + UserTable.TABLE_NAME + " WHERE " + UserTable.USER_NAME_COLUMN_NAME + " = '"
+        +  username + "' AND " + UserTable.PASSWORD_COLUMN_NAME + " = '" + password + "'";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -112,32 +115,29 @@ public class DatabaseLayer {
     // Return the count of movies watched by the user with userId. User will always only exist when this gets called.
     // Return 0 if none watched or error occurs.
     public int getMoviesWatchedCount(int userId) {
-        //CalebTODO
-        String query = " SELECT count(*) FROM " + UserTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME
-                + " ON " + UserTable.USER_ID_COLUMN_NAME + " = " + HasWatchedTable.USER_ID_COLUMN_NAME + " GROUP BY "
-                + UserTable.TABLE_NAME + " HAVING " + UserTable.USER_ID_COLUMN_NAME + " = '" + userId + "'";
-
         ResultSet results;
         int movieCount;
+
+        //SELECT count(*) FROM User u JOIN Has_Watched hw ON u.UserId = hw.UserId GROUP BY u.UserId Having u.UserId = userId;
+        String query = " SELECT count(*) FROM " + UserTable.TABLE_NAME + " u JOIN " + HasWatchedTable.TABLE_NAME
+                + " hw ON u." + UserTable.USER_ID_COLUMN_NAME + " = hw." + HasWatchedTable.USER_ID_COLUMN_NAME + " GROUP BY u."
+                + UserTable.USER_ID_COLUMN_NAME + " HAVING u." + UserTable.USER_ID_COLUMN_NAME + " = " + userId;
 
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
 
             results = stmt.executeQuery();
+            if(!results.next()) { // no results
+                return 0;
+            }
 
-            movieCount = results.getInt(query);
-
-
-            return movieCount;
+            movieCount = results.getInt(1);
 
         } catch (SQLException e) { // error
             return 0;
         }
-        //Set up query string. SELECT count(*) from User u JOIN Has_Watched hw on u.userId = hw.userId GROUP BY u.userId, count(*)
-        //HAVING userId = userId
-        //or something like this. Check your query in SQLite
 
-        //run query, examine result and see if valid
+        return movieCount;
     }
 
     // WAIT TO IMPLEMENT. Should be a final touch.
@@ -175,6 +175,12 @@ public class DatabaseLayer {
         //First, insert the configuration from the object 'configuration' that was passed in by doing an insert
         //into preference configurations with 'configuration's and insert into 'has' with the configuration you just made
         return -1;
+    }
+
+    // Return an array of
+    public ArrayList<PreferenceConfiguration> getUserConfigurations(int userId) {
+        ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
+        return null;
     }
 
     /*

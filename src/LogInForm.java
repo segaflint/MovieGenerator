@@ -179,21 +179,21 @@ public class LogInForm {
                     if(contextComboBox.getSelectedItem().toString().compareTo("Seth") == 0) {
                         if(dataLayer.setUserMode(1)) {
                             contextLabel.setText("Connected to Seth's Database");
-                            contextLabel.setBackground(Color.BLACK);
+                            contextLabel.setForeground(Color.BLACK);
                             enableLoginComponents();
                         } else {
                             contextLabel.setText("Unable to connect to Seth's Database");
-                            contextLabel.setBackground(Color.RED);
+                            contextLabel.setForeground(Color.RED);
                             disableLoginComponents();
                         }
                     } else if (contextComboBox.getSelectedItem().toString().compareTo("Caleb") == 0) {
                         if(dataLayer.setUserMode(0)) {
                             contextLabel.setText("Connected to Caleb's Database");
-                            contextLabel.setBackground(Color.BLACK);
+                            contextLabel.setForeground(Color.BLACK);
                             enableLoginComponents();
                         } else {
                             contextLabel.setText("Unable to connect to Calebs's Database");
-                            contextLabel.setBackground(Color.RED);
+                            contextLabel.setForeground(Color.RED);
                             disableLoginComponents();
                         }
                     }

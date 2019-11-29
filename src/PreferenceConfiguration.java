@@ -1,10 +1,11 @@
 import Constants.DataTables.PreferenceConfigurationTable;
 
 import javax.xml.transform.Result;
+import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PreferenceConfiguration {
+public class PreferenceConfiguration extends Component {
 
     private int configurationId;
     private String configurationName;
@@ -46,6 +47,10 @@ public class PreferenceConfiguration {
         }
     }
 
+    public PreferenceConfiguration(String configurationName) {
+        this.configurationName = configurationName;
+    }
+
 
     /*
      * GETTERS
@@ -78,4 +83,8 @@ public class PreferenceConfiguration {
         return genre;
     }
 
+    @Override
+    public String toString() {
+        return this.configurationName;
+    }
 }
