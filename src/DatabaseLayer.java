@@ -170,6 +170,7 @@ public class DatabaseLayer {
     // returns 0 if successful insertion of configuration, -1 otherwise
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
         //CalebTODO 1
+        ResultSet results;
 
         String sql = "INSERT INTO PreferenceConfiguration(configurationId, configurationName, releaseYearFrom," +
                 " releaseYearTo, director, rating, genre) VALUES ( ?, ?, ?, ?, ?, ?, ? )";
@@ -182,6 +183,7 @@ public class DatabaseLayer {
         try {
 
             stmt = connection.prepareStatement(sql);
+            results = stmt.executeQuery();
 
             stmt.setInt(1, configuration.getConfigurationId());
             stmt.setString(2, configuration.getConfigurationName());
@@ -210,6 +212,7 @@ public class DatabaseLayer {
     // Return an array of Preference Configurations belonging to the user with userId
     public ArrayList<PreferenceConfiguration> getUserConfigurations(int userId) {
         //CalebTODO2
+        ResultSet results;
 
         ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
 
@@ -219,8 +222,9 @@ public class DatabaseLayer {
         try {
 
             PreparedStatement stmt = connection.prepareStatement(sql);
+            results = stmt.executeQuery();
 
-            configurationsList.add((PreferenceConfiguration) stmt);
+            configurationsList.add((PreferenceConfiguration) results);
 
             return configurationsList;
 
@@ -234,20 +238,39 @@ public class DatabaseLayer {
     // Generate a movie based on the given preference configuration
     public Movie generateMovie(PreferenceConfiguration configuration, boolean includeWatchedMovies) {
         //CalebTODO 3
-
-        String sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
-        HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " +
-        HasTable.USER_ID_COLUMN_NAME + " ON " + HasTable.USER_ID_COLUMN_NAME + " = " +
-        PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
-        + " = " + configuration;
-
+        ResultSet result;
         Movie movie;
+        try { 
 
-        try {
+        String sql;
+
+        if (includeWatchedMovies = true ) {
+
+            sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
+            HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " +
+            HasTable.USER_ID_COLUMN_NAME + " ON " + HasTable.USER_ID_COLUMN_NAME + " = " +
+            PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
+            + " = " + configuration;
+
+        } else {
+            sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
+                    HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
+                    " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
+                    HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
+                    PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
+                    PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + " MINUS " +
+                    " (SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
+                    HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
+                    " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
+                    HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
+                    PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
+                    HasTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + ") ";
+        }
 
             PreparedStatement stmt = connection.prepareStatement(sql);
+            result = stmt.executeQuery();
 
-            movie = (Movie) stmt;
+            movie = (Movie) result;
 
             return movie;
 
