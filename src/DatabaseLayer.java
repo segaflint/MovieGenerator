@@ -171,7 +171,6 @@ public class DatabaseLayer {
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
         //CalebTODO 1
 
-        //not sure how to insert to the userId selected
         String sql = "INSERT INTO PreferenceConfiguration(configurationId, configurationName, releaseYearFrom," +
                 " releaseYearTo, director, rating, genre) VALUES ( ?, ?, ?, ?, ?, ?, ? )";
 
