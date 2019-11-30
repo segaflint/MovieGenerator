@@ -114,7 +114,7 @@ public class DatabaseLayer {
 
     // Return the count of movies watched by the user with userId. User will always only exist when this gets called.
     // Return 0 if none watched or error occurs.
-    public int getMoviesWatchedCount(int userId) {
+    public int getMoviesWatchedCount(int userId) { // uses aggregate, Group by and having
         ResultSet results;
         int movieCount;
 
@@ -171,10 +171,13 @@ public class DatabaseLayer {
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
         //CalebTODO 1
 
-        String sql = "INSERT INTO PreferenceConfiguration(configurationId, configurationName, releaseYearFrom," +
-                " releaseYearTo, director, rating, genre) VALUES ( ?, ?, ?, ?, ?, ?, ? )";
+        String sql = "INSERT INTO " + PreferenceConfigurationTable.TABLE_NAME+"(" + PreferenceConfigurationTable.CONFIGURATION_NAME_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME+ ", " + PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME + ", " + PreferenceConfigurationTable.RATING_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.GENRE_COLUMN_NAME + ") VALUES ( ?, ?, ?, ?, ?, ? )";
 
-        String sql2 = "INSERT INTO Has(userId, configurationId) VALUES ( ?, ? )";
+        String sql2 = "INSERT INTO " + HasTable.TABLE_NAME + "(" + HasTable.USER_ID_COLUMN_NAME+ ", "
+                + HasTable.CONFIGURATION_ID_COLUMN_NAME +") VALUES ( ?, ? )";
 
         PreparedStatement stmt = null;
         PreparedStatement stmt2 = null;
@@ -183,17 +186,18 @@ public class DatabaseLayer {
 
             stmt = connection.prepareStatement(sql);
 
-            stmt.setInt(1, configuration.getConfigurationId());
-            stmt.setString(2, configuration.getConfigurationName());
-            stmt.setInt(3, configuration.getReleaseYearFrom());
-            stmt.setInt(4, configuration.getReleaseYearTo());
-            stmt.setString(5, configuration.getDirector());
-            stmt.setString(6, configuration.getRating());
-            stmt.setString(7, configuration.getGenre());
+            stmt.setString(1, configuration.getConfigurationName());
+            stmt.setInt(2, configuration.getReleaseYearFrom());
+            stmt.setInt(3, configuration.getReleaseYearTo());
+            stmt.setString(4, configuration.getDirector());
+            stmt.setString(5, configuration.getRating());
+            stmt.setString(6, configuration.getGenre());
+
+
 
             stmt2 = connection.prepareStatement(sql2);
 
-            stmt2.setInt(1, userId.getUserId());
+            stmt2.setInt(1, userId);
             stmt2.setInt(2, userId.getConfigurationId());
 
             return 0;
@@ -213,8 +217,8 @@ public class DatabaseLayer {
 
         ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
 
-        String sql = "SELECT ConfigurationId FROM " + UserTable.TABLE_NAME + " JOIN " +
-                PreferenceConfigurationTable.TABLE_NAME + " WHERE " + UserTable.USER_ID_COLUMN_NAME + " = " + userId;
+        String sql = "SELECT * FROM " + HasTable.TABLE_NAME + " NATURAL JOIN " +
+                PreferenceConfigurationTable.TABLE_NAME + " WHERE " + HasTable.USER_ID_COLUMN_NAME + " = " + userId;
 
         try {
 
