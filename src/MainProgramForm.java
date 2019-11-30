@@ -108,12 +108,12 @@ public class MainProgramForm {
         }
 
         //releaseYearFromComboBox
-        for(int i = 1900; i < 2020; i++) {
+        for(int i = YearConstants.EARLIEST_YEAR; i < YearConstants.LATEST_YEAR; i++) {
             releaseYearFromComboBox.addItem(i);
         }
 
         //releaseYearToComboBox
-        for(int i = 1900; i < 2020; i++) {
+        for(int i = YearConstants.EARLIEST_YEAR; i < YearConstants.LATEST_YEAR; i++) {
             releaseYearToComboBox.addItem(i);
         }
 
@@ -138,12 +138,16 @@ public class MainProgramForm {
 
     }
 
+    private void displayGeneratedMovie() {
+
+    }
+
 //    private void initializeConfigurationsList(){
 //        DefaultListModel<PreferenceConfiguration> model = new DefaultListModel<>();
 //        //ArrayList<PreferenceConfiguration> configurationArrayList = dataLayer.getUserConfigurations(userId);
 //        ArrayList<PreferenceConfiguration> configurationArrayList = new ArrayList<>();
-//        configurationArrayList.add(new PreferenceConfiguration(3, "Jeff", 3, 4, "John boy", "R", "action"));
-//        configurationArrayList.add(new PreferenceConfiguration(3, "Jesad", 4, 6, "Josadhn boy", "R", "action"));
+//        configurationArrayList.add(new PreferenceConfiguration(3, "Jeff",'N', 3, 4, "John boy", "R", "action"));
+//        configurationArrayList.add(new PreferenceConfiguration(3, "Jesad", 'N', 4, 6, "Josadhn boy", "R", "action"));
 //
 //        for (PreferenceConfiguration pc : configurationArrayList) {
 //            model.addElement(pc);
@@ -164,6 +168,13 @@ public class MainProgramForm {
                genreComboBox.setSelectedIndex(i);
                break;
            }
+       }
+
+       if(configuration.getAnyYearFlag() == 'Y') { // configuration is any year
+           anyYearCheckBox.setSelected(true);
+       } else { // configuration between certain years
+           releaseYearFromComboBox.setSelectedIndex(configuration.getReleaseYearFrom() - EARLIEST_YEAR);
+           releaseYearToComboBox.setSelectedIndex(configuration.getReleaseYearTo() - EARLIEST_YEAR);
        }
 
        for( int i = 0; i < ratingComboBox.getItemCount(); i++ ) {
@@ -307,7 +318,8 @@ public class MainProgramForm {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                movieGenerated = dataLayer.generateRandomMovie(); 
+                movieGenerated = dataLayer.generateRandomMovie();
+                displayGeneratedMovie();
             }
         });
     }
