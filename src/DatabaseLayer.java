@@ -209,8 +209,28 @@ public class DatabaseLayer {
 
     // Return an array of Preference Configurations belonging to the user with userId
     public ArrayList<PreferenceConfiguration> getUserConfigurations(int userId) {
-        //CalebTODO 2
+        //CalebTODO2
+
         ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
+
+        String sql = "SELECT ConfigurationId FROM " + UserTable.TABLE_NAME + " JOIN " +
+                PreferenceConfigurationTable.TABLE_NAME + " WHERE " + UserTable.USER_ID_COLUMN_NAME + " = " + userId;
+
+        try {
+
+            PreparedStatement stmt = connection.prepareStatement(sql);
+
+            configurationsList.add((PreferenceConfiguration) stmt);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        
+
         return configurationsList;
     }
 
