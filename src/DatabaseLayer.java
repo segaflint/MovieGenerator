@@ -171,6 +171,37 @@ public class DatabaseLayer {
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
         //CalebTODO 1
 
+        //not sure how to insert to the userId selected
+        String sql = "INSERT INTO PreferenceConfiguration(configurationId, configurationName, releaseYearFrom," +
+                " releaseYearTo, director, rating, genre) VALUES ( ?, ?, ?, ?, ?, ?, ? )";
+
+        String sql2 = "INSERT INTO Has(userId, configurationId) VALUES ( ?, ? )";
+
+        PreparedStatement stmt = null;
+        PreparedStatement stmt2 = null;
+
+        try {
+
+            stmt = connection.prepareStatement(sql);
+
+            stmt.setInt(1, configuration.getConfigurationId());
+            stmt.setString(2, configuration.getConfigurationName());
+            stmt.setInt(3, configuration.getReleaseYearFrom());
+            stmt.setInt(4, configuration.getReleaseYearTo());
+            stmt.setString(5, configuration.getDirector());
+            stmt.setString(6, configuration.getRating());
+            stmt.setString(7, configuration.getGenre());
+
+            stmt2 = connection.prepareStatement(sql2);
+
+            stmt2.setInt(1, userId.getUserId());
+            stmt2.setInt(2, userId.getConfigurationId());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
         //First, insert the configuration from the object 'configuration' that was passed in by doing an insert
         //into preference configurations with 'configuration's and insert into 'has' with the configuration you just made
         return -1;
