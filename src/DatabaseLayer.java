@@ -222,15 +222,12 @@ public class DatabaseLayer {
 
             configurationsList.add((PreferenceConfiguration) stmt);
 
+            return configurationsList;
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-
-
-
         
-
         return configurationsList;
     }
 
