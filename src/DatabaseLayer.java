@@ -196,10 +196,11 @@ public class DatabaseLayer {
             stmt2.setInt(1, userId.getUserId());
             stmt2.setInt(2, userId.getConfigurationId());
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            return 0;
 
+        } catch (SQLException e) {
+            return -1;
+        }
 
         //First, insert the configuration from the object 'configuration' that was passed in by doing an insert
         //into preference configurations with 'configuration's and insert into 'has' with the configuration you just made
