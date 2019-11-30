@@ -173,8 +173,8 @@ public class MainProgramForm {
        if(configuration.getAnyYearFlag() == 'Y') { // configuration is any year
            anyYearCheckBox.setSelected(true);
        } else { // configuration between certain years
-           releaseYearFromComboBox.setSelectedIndex(configuration.getReleaseYearFrom() - EARLIEST_YEAR);
-           releaseYearToComboBox.setSelectedIndex(configuration.getReleaseYearTo() - EARLIEST_YEAR);
+           releaseYearFromComboBox.setSelectedIndex(configuration.getReleaseYearFrom() - YearConstants.EARLIEST_YEAR);
+           releaseYearToComboBox.setSelectedIndex(configuration.getReleaseYearTo() - YearConstants.EARLIEST_YEAR);
        }
 
        for( int i = 0; i < ratingComboBox.getItemCount(); i++ ) {
