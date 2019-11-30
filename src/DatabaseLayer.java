@@ -234,9 +234,27 @@ public class DatabaseLayer {
     // Generate a movie based on the given preference configuration
     public Movie generateMovie(PreferenceConfiguration configuration, boolean includeWatchedMovies) {
         //CalebTODO 3
+
+        String sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
+        HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " +
+        HasTable.USER_ID_COLUMN_NAME + " ON " + HasTable.USER_ID_COLUMN_NAME + " = " +
+        PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
+        + " = " + configuration;
+
         Movie movie;
 
-        return null;
+        try {
+
+            PreparedStatement stmt = connection.prepareStatement(sql);
+
+            movie = (Movie) stmt;
+
+            return movie;
+
+        } catch (SQLException e) {
+            return null;
+        }
+
     }
 
     public Movie generateRandomMovie(){// USES OFFSET
