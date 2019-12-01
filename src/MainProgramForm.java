@@ -125,11 +125,7 @@ public class MainProgramForm {
     }
 
     private void initializeConfigurationsComboBox() {
-//        ArrayList<PreferenceConfiguration> configurationArrayList = dataLayer.getUserConfigurations(userId);
-        ArrayList<PreferenceConfiguration> configurationArrayList = new ArrayList<>();
-
-        configurationArrayList.add(new PreferenceConfiguration(3, "Jeff", 'N', 3, 4, "John boy", "R", "action"));
-        configurationArrayList.add(new PreferenceConfiguration(3, "Jesad", 'N', 4, 6, "Josadhn boy", "R", "action"));
+        ArrayList<PreferenceConfiguration> configurationArrayList = dataLayer.getUserConfigurations(userId);
 
         configurationsComboBox.addItem(new PreferenceConfiguration(NEW_CONFIGURATION));
         for (PreferenceConfiguration pc : configurationArrayList) {
@@ -164,7 +160,7 @@ public class MainProgramForm {
     private void showPreferenceConfiguration(PreferenceConfiguration configuration) {
        movieTitleLabel.setText("");
        for( int i = 0; i < genreComboBox.getItemCount(); i++ ) {
-           if(configuration.getGenre().compareTo(genreComboBox.getItemAt(i).toString()) == 0){
+           if(configuration.getGenres().compareTo(genreComboBox.getItemAt(i).toString()) == 0){
                genreComboBox.setSelectedIndex(i);
                break;
            }
@@ -178,15 +174,15 @@ public class MainProgramForm {
        }
 
        for( int i = 0; i < ratingComboBox.getItemCount(); i++ ) {
-           if(configuration.getGenre().compareTo(ratingComboBox.getItemAt(i).toString()) == 0){
+           if(configuration.getGenres().compareTo(ratingComboBox.getItemAt(i).toString()) == 0){
                ratingComboBox.setSelectedIndex(i);
                break;
            }
        }
-
-       directorTextField.setText(configuration.getDirector());
-
-    }
+//
+//       directorTextField.setText(configuration.getDirector());
+//
+//    }
 
     /*
      * ACTION LISTENERS

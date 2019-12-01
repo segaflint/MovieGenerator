@@ -1,9 +1,8 @@
 import java.sql.*;
-import Constants.*;
+
 import Constants.DataTables.*;
-import java.time.*;
+
 import java.util.ArrayList;
-import java.util.List;
 
 /*
  *
@@ -143,6 +142,7 @@ public class DatabaseLayer {
     // WAIT TO IMPLEMENT. Should be a final touch.
     // Return true if user with userId is an admin.
     public boolean isAdmin(int userId) {
+        //TODO
         //query the database for user with userId. Create admin flag column in the user table and check if char is Y.
         // if is Y, return true. Otherwise false
         return false;
@@ -167,18 +167,26 @@ public class DatabaseLayer {
         return -1;
     }
 
-    // returns 0 if successful insertion of configuration, -1 otherwise
+    // returns the configurationId if successful insertion of configuration, -1 otherwise
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
-        //CalebTODO 1
         ResultSet results;
+        int configurationId = 0; // if configurationId is 0, there is no configuration in the database that corresponds
+        // has the IN operator and LIKE depending on the cases
+        String query = "SELECT " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " FROM " + PreferenceConfigurationTable.TABLE_NAME +
+                whereEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME, configuration.getReleaseYearFrom()) +
+                andEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME, configuration.getReleaseYearTo()) +
+                andEqualsString(PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME, configuration.getDirector()) +
+                andEqualsString(PreferenceConfigurationTable.RATING_COLUMN_NAME, configuration.getRating()) +
+                andEqualsString(PreferenceConfigurationTable.GENRE_COLUMN_NAME, configuration.getGenres()) +
+                andEqualsString(PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME, String.valueOf(configuration.getAnyYearFlag()));
 
-        String sql = "INSERT INTO " + PreferenceConfigurationTable.TABLE_NAME+"(" + PreferenceConfigurationTable.CONFIGURATION_NAME_COLUMN_NAME +
-                ", " + PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME+ ", " + PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME +
-                ", " + PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME + ", " + PreferenceConfigurationTable.RATING_COLUMN_NAME +
-                ", " + PreferenceConfigurationTable.GENRE_COLUMN_NAME + ") VALUES ( ?, ?, ?, ?, ?, ? )";
+        String sql = "INSERT INTO " + PreferenceConfigurationTable.TABLE_NAME+"(" + PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME + ", " + PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.RATING_COLUMN_NAME + ", " + PreferenceConfigurationTable.GENRE_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME + ") VALUES ( ?, ?, '?', '?', '?', '?' )";
 
-        String sql2 = "INSERT INTO " + HasTable.TABLE_NAME + "(" + HasTable.USER_ID_COLUMN_NAME+ ", "
-                + HasTable.CONFIGURATION_ID_COLUMN_NAME +") VALUES ( ?, ? )";
+        String sql2 = "INSERT INTO " + HasTable.TABLE_NAME + "(" + HasTable.USER_ID_COLUMN_NAME+ ", " + HasTable.CONFIGURATION_NAME_COLUMN_NAME +
+                ", " + HasTable.CONFIGURATION_ID_COLUMN_NAME +") VALUES ( ?, '?', ? )";
 
         PreparedStatement stmt = null;
         PreparedStatement stmt2 = null;
@@ -188,19 +196,20 @@ public class DatabaseLayer {
             stmt = connection.prepareStatement(sql);
             results = stmt.executeQuery();
 
-            stmt.setString(1, configuration.getConfigurationName());
-            stmt.setInt(2, configuration.getReleaseYearFrom());
-            stmt.setInt(3, configuration.getReleaseYearTo());
-            stmt.setString(4, configuration.getDirector());
-            stmt.setString(5, configuration.getRating());
-            stmt.setString(6, configuration.getGenre());
+            stmt.setInt(1, configuration.getReleaseYearFrom());
+            stmt.setInt(2, configuration.getReleaseYearTo());
+            stmt.setString(3, configuration.getDirector());
+            stmt.setString(4, configuration.getRating());
+            stmt.setString(5, configuration.getGenres());
+            stmt.setString(6, String.valueOf(configuration.getAnyYearFlag()));
 
 
 
             stmt2 = connection.prepareStatement(sql2);
 
             stmt2.setInt(1, userId);
-            stmt2.setInt(2, userId.getConfigurationId());
+            stmt2.setString(2, configuration.getConfigurationName());
+            stmt2.setInt(3, configurationId);
 
             return 0;
 
@@ -220,17 +229,17 @@ public class DatabaseLayer {
 
         ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
 
-        String sql = "SELECT * FROM " + HasTable.TABLE_NAME + " NATURAL JOIN " +
-                PreferenceConfigurationTable.TABLE_NAME + " WHERE " + HasTable.USER_ID_COLUMN_NAME + " = " + userId;
+        String sql = "SELECT * FROM " + HasTable.TABLE_NAME + " h NATURAL JOIN " +
+                PreferenceConfigurationTable.TABLE_NAME + " WHERE h." + HasTable.USER_ID_COLUMN_NAME + " = " + userId;
 
         try {
 
             PreparedStatement stmt = connection.prepareStatement(sql);
             results = stmt.executeQuery();
 
-            configurationsList.add((PreferenceConfiguration) results);
-
-            return configurationsList;
+            while (results.next()) {
+                configurationsList.add(new PreferenceConfiguration(results));
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -248,7 +257,7 @@ public class DatabaseLayer {
 
         String sql;
 
-        if (includeWatchedMovies = true ) {
+        if ( includeWatchedMovies == true ) { // possibly has LIKE, IN and
 
             sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
             HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " +
@@ -256,7 +265,7 @@ public class DatabaseLayer {
             PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
             + " = " + configuration;
 
-        } else {
+        } else { // uses MINUS set operator
             sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
                     HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
                     " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
@@ -304,6 +313,29 @@ public class DatabaseLayer {
         connection = DriverManager.getConnection(url);
     }
 
+    /*
+     * SCRIPT Stringing functions
+     */
+
+    // returns a string for an AND clause with leading and finishing spaces " AND columnName = 'value'"
+    private String andEqualsString(String columnName, String value) {
+        return " AND " + columnName + " = '" + value + "'";
+    }
+
+    // returns a string for an AND clause with leading and finishing spaces " AND columnName = value"
+    private String andEqualsInt(String columnName, int value) {
+        return " AND " + columnName + " = " + value;
+    }
+
+    // returns a string for a WHERE clause with leading and finishing spaces " WHERE columnName = 'value'"
+    private String whereEqualsString(String columnName, String value) {
+        return " WHERE " + columnName + " = '" + value + "'";
+    }
+
+    // returns a string for a WHERE clause with leading and finishing spaces " WHERE columnName = value"
+    private String whereEqualsInt(String columnName, int value) {
+        return " WHERE " + columnName + " = " + value;
+    }
 
 
 //    public ResultSet employeeLookup(String ssn) throws SQLException {
