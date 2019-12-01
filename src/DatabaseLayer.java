@@ -259,10 +259,9 @@ public class DatabaseLayer {
 
         if ( includeWatchedMovies == true ) { // possibly has LIKE, IN and
 
-            sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
-            HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " +
-            HasTable.USER_ID_COLUMN_NAME + " ON " + HasTable.USER_ID_COLUMN_NAME + " = " +
-            PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
+            sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME +
+            " JOIN " + UserTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME +
+            " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
             + " = " + configuration;
 
         } else { // uses MINUS set operator
