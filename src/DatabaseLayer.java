@@ -170,7 +170,18 @@ public class DatabaseLayer {
             sqlString = sqlString + " AND " + MovieTable.RATING_COLUMN_NAME + " IN ( ";
             for(int i = 0; i < ratings.length; i++) { // iterate through ratingsflag array
                 if(ratings[i] == 'Y') { // if this rating is flagged 'Y' Add it to the string
-                    if( i == Ratings.R_INDEX ) sqlString = sqlString + Ratings.R.toString() + ", ";
+                    if( i == Ratings.R_INDEX ) {
+                        sqlString = sqlString + Ratings.R.toString() + ", ";
+                    }
+                    else if ( i == Ratings.PG13_INDEX ) {
+                         sqlString = sqlString + Ratings.PG13.toString() + ", ";
+                    }
+                    else if ( i == Ratings.PG_INDEX ) {
+                        sqlString = sqlString + Ratings.PG.toString() + ", " ;
+                    }
+                    else if ( i == Ratings.G_INDEX ) {
+                         sqlString = sqlString + Ratings.G.toString() + ", " ;
+                    }
                 }
             }
             sqlString = sqlString + "'' )";
