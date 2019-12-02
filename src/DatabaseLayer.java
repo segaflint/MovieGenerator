@@ -1,6 +1,7 @@
 import java.sql.*;
 
 import Constants.DataTables.*;
+import Constants.Ratings;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -153,8 +154,33 @@ public class DatabaseLayer {
     }
 
     // Generate a movie based on the given preference configuration
-    public Movie generateMovie(PreferenceConfiguration configuration, boolean includeWatchedMovies) {
+    public Movie generateMovie(int userId, PreferenceConfiguration configuration, boolean includeWatchedMovies) {
         //CalebTODO 3
+
+        String sqlString = "SELECT * FROM " + MovieTable.TABLE_NAME +
+                " WHERE " + MovieTable.TITLE_COLUMN_NAME  + " = " + MovieTable.TITLE_COLUMN_NAME;
+
+        if(configuration.getAnyYearFlag() == 'N')   {
+            sqlString = sqlString + " AND " + MovieTable.RELEASE_YEAR_COLUMN_NAME + " BETWEEN " + configuration.getReleaseYearFrom()
+                    + " AND " + configuration.getReleaseYearTo();
+        }
+
+        if(!configuration.hasNoRatings()) {
+            char[] ratings = configuration.getRatings();
+            sqlString = sqlString + " AND " + MovieTable.RATING_COLUMN_NAME + " IN ( ";
+            for(int i = 0; i < ratings.length; i++) { // iterate through ratingsflag array
+                if(ratings[i] == 'Y') { // if this rating is flagged 'Y' Add it to the string
+                    if( i == Ratings.R_INDEX ) sqlString = sqlString + Ratings.R.toString() + ", ";
+                }
+            }
+            sqlString = sqlString + "'' )";
+        }
+
+        if(!(configuration.getDirector().compareTo("") == 0)) { // if the string is not empty, you will query based on the director
+            // AND Director LIKE 'director%String%'
+        }
+
+        //TODO: Caleb go from here
         ResultSet result;
         Movie movie;
         try {

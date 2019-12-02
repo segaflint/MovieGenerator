@@ -345,13 +345,13 @@ public class MainProgramForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(configurationIsEdited){ // if any configuration has been edited, use the contents of the editor
-                    movieGenerated = dataLayer.generateMovie(new PreferenceConfiguration(-1, "", includeAnyYear,
+                    movieGenerated = dataLayer.generateMovie(userId, new PreferenceConfiguration(-1, "", includeAnyYear,
                             (int) releaseYearFromComboBox.getSelectedItem(), (int) releaseYearToComboBox.getSelectedItem(),
                             directorTextField.getText(), ratingsFlags,
                             genresFlags), includeWatchedMovies);
                     displayGeneratedMovie();
                 } else  {
-                    movieGenerated = dataLayer.generateMovie((PreferenceConfiguration) configurationsComboBox.getSelectedItem(),
+                    movieGenerated = dataLayer.generateMovie(userId, (PreferenceConfiguration) configurationsComboBox.getSelectedItem(),
                             includeWatchedMovies);
                     displayGeneratedMovie();
                 }
