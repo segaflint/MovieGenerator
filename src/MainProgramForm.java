@@ -21,7 +21,7 @@ public class MainProgramForm {
     private JLabel genresLabel;
     private JLabel releaseYearToLabel;
     private JComboBox releaseYearToComboBox;
-    private JComboBox releaseYearFromComboBox;
+                private JComboBox releaseYearFromComboBox;
     private JComboBox ratingComboBox;
     private JLabel directorLabel;
     private JTextField directorTextField;
@@ -250,6 +250,33 @@ public class MainProgramForm {
             }
         });
 
+        releaseYearFromComboBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                setSaveEnabled(true);
+            }
+        });
+        releaseYearToComboBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                setSaveEnabled(true);
+            }
+        });
+
         addMovieButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -304,6 +331,7 @@ public class MainProgramForm {
                     }
                 } else {// Selected Config
                     showPreferenceConfiguration((PreferenceConfiguration) configurationsComboBox.getSelectedItem());
+                    setSaveEnabled(false);
                 }
             }
         });
@@ -362,6 +390,7 @@ public class MainProgramForm {
                 } else {
                     genresFlags[Genres.ACTION_ADVENTURE_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -380,6 +409,7 @@ public class MainProgramForm {
                 } else {
                     genresFlags[Genres.HORROR_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -398,6 +428,7 @@ public class MainProgramForm {
                 } else {
                     genresFlags[Genres.KIDS_FAMILY_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -416,6 +447,7 @@ public class MainProgramForm {
                 } else {
                     genresFlags[Genres.DRAMA_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -434,6 +466,7 @@ public class MainProgramForm {
                 } else {
                     genresFlags[Genres.SCIFI_FANTASY_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -452,6 +485,7 @@ public class MainProgramForm {
                 } else {
                     genresFlags[Genres.COMEDY_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -473,6 +507,7 @@ public class MainProgramForm {
                 } else {
                     ratingsFlags[Ratings.R_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -491,6 +526,7 @@ public class MainProgramForm {
                 } else {
                     ratingsFlags[Ratings.PG13_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -509,6 +545,7 @@ public class MainProgramForm {
                 } else {
                     ratingsFlags[Ratings.PG_INDEX] = 'N';
                 }
+                setSaveEnabled(true);
             }
         });
 
@@ -527,9 +564,7 @@ public class MainProgramForm {
                 } else {
                     ratingsFlags[Ratings.G_INDEX] = 'N';
                 }
-                if(configurationIsEdited) { //TODO Fix each check box to show if it is edited
-                    setSaveEnabled(true);
-                }
+                setSaveEnabled(true);
             }
         });
 
