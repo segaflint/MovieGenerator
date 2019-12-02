@@ -2,31 +2,19 @@ import java.sql.*;
 
 import Constants.DataTables.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /*
  *
- * Load SQL driver (JDBC/ODBC)
- * - add to build path
- *
- * Set up our database (script)
- * (-create database)
- * - create tables
- * - populate with starting data
- *
- * connect to the database
- *
- * insert/modify/delete data
- *
- * query data
- *
- * disconnect from the database
+ * Database Layer for all database interactions
  *
  */
 public class DatabaseLayer {
 
-    final private int CalebMode = 0;
-    final private int SethMode = 1;
+    private final int CalebMode = 0;
+    private final int SethMode = 1;
     private int userMode = 1;
 
     private String CalebUrl = "jdbc:sqlite:/Users/caleb/Desktop/MovieGenerator.db";
@@ -139,10 +127,114 @@ public class DatabaseLayer {
         return movieCount;
     }
 
+    // Return an array of Preference Configurations belonging to the user with userId
+    public ArrayList<PreferenceConfiguration> getUserConfigurations(int userId) {
+        ResultSet results;
+
+        ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
+
+        String sql = "SELECT * FROM " + HasTable.TABLE_NAME + " h NATURAL JOIN " +
+                PreferenceConfigurationTable.TABLE_NAME + " WHERE h." + HasTable.USER_ID_COLUMN_NAME + " = " + userId;
+
+        try {
+
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            results = stmt.executeQuery();
+
+            while (results.next()) {
+                configurationsList.add(new PreferenceConfiguration(results));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return configurationsList;
+    }
+
+    // Generate a movie based on the given preference configuration
+    public Movie generateMovie(PreferenceConfiguration configuration, boolean includeWatchedMovies) {
+        //CalebTODO 3
+        ResultSet result;
+        Movie movie;
+        try {
+
+            String sql;
+
+            if ( includeWatchedMovies == true ) { // possibly has LIKE, IN and
+
+                sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME +
+                        " JOIN " + UserTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME +
+                        " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
+                        + " = " + configuration;
+
+            } else { // uses MINUS set operator
+                sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
+                        HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
+                        " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
+                        HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
+                        PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
+                        PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + " MINUS " +
+                        " (SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
+                        HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
+                        " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
+                        HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
+                        PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
+                        HasTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + ") ";
+            }
+
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            result = stmt.executeQuery();
+
+            movie = (Movie) result;
+
+            return movie;
+
+        } catch (SQLException e) {
+            return null;
+        }
+
+    }
+
+    public Movie generateRandomMovie(){//query1 uses count(*) for count of Movies query2 USES OFFSET
+        int totalMoviesCount = 0;
+        int offset = 0;
+
+        //SELECT count(*) FROM Movie
+        String sqlMovieCount = "SELECT count(*) FROM " + MovieTable.TABLE_NAME;
+        try {
+            PreparedStatement movieCountStmt = connection.prepareStatement(sqlMovieCount);
+            ResultSet countSet = movieCountStmt.executeQuery();
+
+            if(countSet.next()) totalMoviesCount = countSet.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        offset = (int)(Math.random() * totalMoviesCount);
+
+        ResultSet result;
+        Movie movie = null;
+
+        // generate totally random movie
+        // QUERY2 then use that random number in a query where you limit 1 and offset by the random number.
+        String sqlRandomMovie = "SELECT * FROM " + MovieTable.TABLE_NAME + " LIMIT 1 OFFSET " + offset;
+        try {
+            PreparedStatement randomMoviestmt = connection.prepareStatement(sqlRandomMovie);
+            result = randomMoviestmt.executeQuery();
+            if(result.next()) movie = new Movie(result);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return movie;
+    }
+
+
     // WAIT TO IMPLEMENT. Should be a final touch.
     // Return true if user with userId is an admin.
     public boolean isAdmin(int userId) {
-        //TODO
+        //TODO WAIT
         //query the database for user with userId. Create admin flag column in the user table and check if char is Y.
         // if is Y, return true. Otherwise false
         return false;
@@ -154,6 +246,7 @@ public class DatabaseLayer {
 
     // Returns userId if a user was successfully created, -1, if user already exists or insert failed
     public int createNewUser(String username, String password) {
+        //TODO WAIT
 
         // CALEB! see the getUser method for examples of how to put the table name, column names into a string from the
         // tables enums packages I created. These are located in "Constants>DataTables" If you'd like to look at them.
@@ -176,8 +269,7 @@ public class DatabaseLayer {
                 whereEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME, configuration.getReleaseYearFrom()) +
                 andEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME, configuration.getReleaseYearTo()) +
                 andEqualsString(PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME, configuration.getDirector()) +
-                andEqualsString(PreferenceConfigurationTable.RATING_COLUMN_NAME, configuration.getRating()) +
-                andEqualsString(PreferenceConfigurationTable.GENRE_COLUMN_NAME, configuration.getGenres()) +
+                getGenresAndEqualsString(configuration) + getRatingsAndEqualsString(configuration) +
                 andEqualsString(PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME, String.valueOf(configuration.getAnyYearFlag()));
 
         String sql = "INSERT INTO " + PreferenceConfigurationTable.TABLE_NAME+"(" + PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME +
@@ -199,7 +291,7 @@ public class DatabaseLayer {
             stmt.setInt(1, configuration.getReleaseYearFrom());
             stmt.setInt(2, configuration.getReleaseYearTo());
             stmt.setString(3, configuration.getDirector());
-            stmt.setString(4, configuration.getRating());
+            stmt.setString(4, configuration.getRatings());
             stmt.setString(5, configuration.getGenres());
             stmt.setString(6, String.valueOf(configuration.getAnyYearFlag()));
 
@@ -222,84 +314,42 @@ public class DatabaseLayer {
         return -1;
     }
 
-    // Return an array of Preference Configurations belonging to the user with userId
-    public ArrayList<PreferenceConfiguration> getUserConfigurations(int userId) {
-        //CalebTODO2
-        ResultSet results;
+    // Insert a new tuple into the user has watched column if the userid and movieId pairing doesnt already exist in the database
+    public void insertUserHasWatched(int userId, int movieId) {
 
-        ArrayList<PreferenceConfiguration> configurationsList = new ArrayList<>();
-
-        String sql = "SELECT * FROM " + HasTable.TABLE_NAME + " h NATURAL JOIN " +
-                PreferenceConfigurationTable.TABLE_NAME + " WHERE h." + HasTable.USER_ID_COLUMN_NAME + " = " + userId;
-
+        //Check that this movie has not already been marked as watched by the user
+        String sqlCheck = "SELECT count(*) FROM " + HasWatchedTable.TABLE_NAME + " WHERE " + HasWatchedTable.USER_ID_COLUMN_NAME +
+                " = " + userId + " AND " + HasWatchedTable.MOVIE_ID_COLUMN_NAME + " = " + movieId;
+        int checkCount = 0;
         try {
-
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            results = stmt.executeQuery();
-
-            while (results.next()) {
-                configurationsList.add(new PreferenceConfiguration(results));
+            PreparedStatement sqlCheckStmt = connection.prepareStatement(sqlCheck);
+            ResultSet result = sqlCheckStmt.executeQuery();
+            if(result.next()) {
+                checkCount = result.getInt(1);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
-        return configurationsList;
-    }
 
-    // Generate a movie based on the given preference configuration
-    public Movie generateMovie(PreferenceConfiguration configuration, boolean includeWatchedMovies) {
-        //CalebTODO 3
-        ResultSet result;
-        Movie movie;
-        try { 
+        if(checkCount > 0) return; //If there is already, end
 
-        String sql;
+        // else insert into HasWatched
 
-        if ( includeWatchedMovies == true ) { // possibly has LIKE, IN and
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String dateString = dateFormat.format(date);
 
-            sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME +
-            " JOIN " + UserTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME +
-            " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
-            + " = " + configuration;
+        String sqlInsert = "INSERT INTO " + HasWatchedTable.TABLE_NAME + "(" + HasWatchedTable.USER_ID_COLUMN_NAME +
+                ", " + HasWatchedTable.WATCHED_DATE_COLUMN_NAME + ", " + HasWatchedTable.MOVIE_ID_COLUMN_NAME +
+                ") VALUES ( " + userId + ", '" + dateString + "', " + movieId +" )";
+        try {
+            PreparedStatement insertStmt = connection.prepareStatement(sqlInsert);
 
-        } else { // uses MINUS set operator
-            sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
-                    HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
-                    " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
-                    HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
-                    PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
-                    PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + " MINUS " +
-                    " (SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
-                    HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
-                    " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
-                    HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
-                    PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
-                    HasTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + ") ";
-        }
-
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            result = stmt.executeQuery();
-
-            movie = (Movie) result;
-
-            return movie;
-
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
-            return null;
+            e.printStackTrace();
         }
 
-    }
-
-    public Movie generateRandomMovie(){// USES OFFSET
-        // CalebTODO 4
-        // generate totally random movie
-        // QUERY1 first get count(*) of all movies and use that to generate a random number between 0 and the count
-        // QUERY2 then use that random number in a query where you limit 1 and offset by the random number.
-        Movie movie;
-
-        return null;
     }
 
     /*
@@ -334,6 +384,42 @@ public class DatabaseLayer {
     // returns a string for a WHERE clause with leading and finishing spaces " WHERE columnName = value"
     private String whereEqualsInt(String columnName, int value) {
         return " WHERE " + columnName + " = " + value;
+    }
+
+    private String getRatingsAndEqualsString(PreferenceConfiguration configuration) { //{ R, PG13, PG, G }
+        char[] ratings = configuration.getRatings();
+        return " AND " + PreferenceConfigurationTable.RATING_HAS_R_COLUMN_NAME + " = '" + ratings[0] + "'" +
+               " AND " + PreferenceConfigurationTable.RATING_HAS_PG13_COLUMN_NAME + " = '" + ratings[1] + "'" +
+               " AND " + PreferenceConfigurationTable.RATING_HAS_PG_COLUMN_NAME + " = '" + ratings[2] + "'" +
+               " AND " + PreferenceConfigurationTable.RATING_HAS_G_COLUMN_NAME + " = '" + ratings[3] + "'";
+    }
+
+    private String getGenresAndEqualsString(PreferenceConfiguration configuration) { //{ ActionAdventure, Horror, KidsFamily, Drama, Comedy, SciFiFantasy}
+        char[] genres = configuration.getGenres();
+        return " AND " + PreferenceConfigurationTable.GENRE_HAS_ACTION_ADVENTURE_COLUMN_NAME + " = '" + genres[0] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_HORROR_COLUMN_NAME + " = '" + genres[1] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_KIDS_FAMILY_COLUMN_NAME + " = '" + genres[2] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_DRAMA_COLUMN_NAME + " = '" + genres[3] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_COMEDY_COLUMN_NAME + " = '" + genres[4] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_SCIFI_FANTASY_COLUMN_NAME + " = '" + genres[5] + "'";
+    }
+
+    private String getRatingsWhereAndEqualsString(PreferenceConfiguration configuration) { //{ R, PG13, PG, G }
+        char[] ratings = configuration.getRatings();
+        return " WHERE " + PreferenceConfigurationTable.RATING_HAS_R_COLUMN_NAME + " = '" + ratings[0] + "'" +
+                " AND " + PreferenceConfigurationTable.RATING_HAS_PG13_COLUMN_NAME + " = '" + ratings[1] + "'" +
+                " AND " + PreferenceConfigurationTable.RATING_HAS_PG_COLUMN_NAME + " = '" + ratings[2] + "'" +
+                " AND " + PreferenceConfigurationTable.RATING_HAS_G_COLUMN_NAME + " = '" + ratings[3] + "'";
+    }
+
+    private String getGenresWhereAndEqualsString(PreferenceConfiguration configuration) { //{ ActionAdventure, Horror, KidsFamily, Drama, Comedy, SciFiFantasy}
+        char[] genres = configuration.getGenres();
+        return " WHERE " + PreferenceConfigurationTable.GENRE_HAS_ACTION_ADVENTURE_COLUMN_NAME + " = '" + genres[0] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_HORROR_COLUMN_NAME + " = '" + genres[1] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_KIDS_FAMILY_COLUMN_NAME + " = '" + genres[2] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_DRAMA_COLUMN_NAME + " = '" + genres[3] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_COMEDY_COLUMN_NAME + " = '" + genres[4] + "'" +
+                " AND " + PreferenceConfigurationTable.GENRE_HAS_SCIFI_FANTASY_COLUMN_NAME + " = '" + genres[5] + "'";
     }
 
 

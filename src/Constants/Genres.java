@@ -33,4 +33,12 @@ public enum Genres {
         else return "Any Genre"; // ANY_GENRE or error
     }
 
+    public static final int ACTION_ADVENTURE_INDEX = 0;
+    public static final int HORROR_INDEX = 1;
+    public static final int KIDS_FAMILY_INDEX = 2;
+    public static final int DRAMA_INDEX = 3;
+    public static final int COMEDY_INDEX = 4;
+    public static final int SCIFI_FANTASY_INDEX = 5;
+
+
 }

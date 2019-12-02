@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -15,10 +16,9 @@ public class MainProgramForm {
     private JButton changeUserButton;
     private JLabel movieCountLable;
     private JButton addMovieButton;
-    private JTextField movieTitleTextField;
     private JComboBox genreComboBox;
     private JLabel movieTitleLabel;
-    private JLabel genreLabel;
+    private JLabel genresLabel;
     private JLabel releaseYearToLabel;
     private JComboBox releaseYearToComboBox;
     private JComboBox releaseYearFromComboBox;
@@ -34,6 +34,20 @@ public class MainProgramForm {
     private JLabel yourConfigurationsLabel;
     private JComboBox configurationsComboBox;
     private JButton generateTotallyRandomMovieButton;
+    private JCheckBox rCheckBox;
+    private JCheckBox PG13CheckBox;
+    private JCheckBox PGCheckBox;
+    private JCheckBox gCheckBox;
+    private JLabel ratingsLabel;
+    private JCheckBox actionAdventureCheckBox;
+    private JCheckBox horrorCheckBox;
+    private JCheckBox kidsFamilyCheckBox;
+    private JCheckBox dramaCheckBox;
+    private JCheckBox sciFiFantasyCheckBox;
+    private JCheckBox comedyCheckBox;
+    private JLabel generatedMovieLabel;
+    private JButton watchHaveWatchedButton;
+    private JLabel provideANameForLabel;
     private JLabel TestLabel;
     private LogInForm logInForm;
 
@@ -46,6 +60,8 @@ public class MainProgramForm {
     private boolean isAdmin;
     private boolean configurationIsEdited = false;
     private Movie movieGenerated;
+    private char[] genresFlags = { 'N', 'N', 'N', 'N', 'N', 'N' };
+    private char[] ratingsFlags = { 'N', 'N', 'N', 'N' };
 
     //Constructor
     public MainProgramForm(DatabaseLayer databaseLayer, JFrame pFrame, int userId, LogInForm form) {
@@ -54,7 +70,6 @@ public class MainProgramForm {
         this.userId = userId;
         parentFrame.revalidate();
         parentFrame.validate();
-//        parentFrame.pack();
         parentFrame.setTitle("Movie Generator");
         logInForm = form;
 
@@ -67,7 +82,6 @@ public class MainProgramForm {
         saveConfigurationButton.setEnabled(false);
         initializeComboBoxes();
         initializeActionListenters();
-//        initializeConfigurationsList();
         initializeConfigurationsComboBox();
 
     }
@@ -90,8 +104,7 @@ public class MainProgramForm {
      */
     private void refreshMovieCountLabel(){
          int count = dataLayer.getMoviesWatchedCount(userId);
-         movieCountLable.setText(" You've watched " + count + " movies." );
-
+         movieCountLable.setText(" You've watched " + count + " movie(s)." );
     }
 
 
@@ -102,10 +115,6 @@ public class MainProgramForm {
 
     private void initializeComboBoxes() {
 
-        //genreComboBox
-        for(Genres gen : Genres.values()) {
-            genreComboBox.addItem(gen);
-        }
 
         //releaseYearFromComboBox
         for(int i = YearConstants.EARLIEST_YEAR; i < YearConstants.LATEST_YEAR; i++) {
@@ -115,11 +124,6 @@ public class MainProgramForm {
         //releaseYearToComboBox
         for(int i = YearConstants.EARLIEST_YEAR; i < YearConstants.LATEST_YEAR; i++) {
             releaseYearToComboBox.addItem(i);
-        }
-
-        // ratingComboBox
-        for(Ratings rating : Ratings.values()) {
-            ratingComboBox.addItem(rating);
         }
 
     }
@@ -135,36 +139,16 @@ public class MainProgramForm {
     }
 
     private void displayGeneratedMovie() {
-
+        String generatedMovie = "Generated Movie: ";
+        generatedMovieLabel.setText(generatedMovie + movieGenerated);
+        watchHaveWatchedButton.setEnabled(true);
     }
-
-//    private void initializeConfigurationsList(){
-//        DefaultListModel<PreferenceConfiguration> model = new DefaultListModel<>();
-//        //ArrayList<PreferenceConfiguration> configurationArrayList = dataLayer.getUserConfigurations(userId);
-//        ArrayList<PreferenceConfiguration> configurationArrayList = new ArrayList<>();
-//        configurationArrayList.add(new PreferenceConfiguration(3, "Jeff",'N', 3, 4, "John boy", "R", "action"));
-//        configurationArrayList.add(new PreferenceConfiguration(3, "Jesad", 'N', 4, 6, "Josadhn boy", "R", "action"));
-//
-//        for (PreferenceConfiguration pc : configurationArrayList) {
-//            model.addElement(pc);
-//        }
-//
-//        configurationsList = new JList(model);
-//        configurationsList.setCellRenderer( new DefaultListCellRenderer() );
-//        configurationsList.setVisible(true);
-////        configurationsList.setDragEnabled(false);
-//        //TODO: make the list work and show stuff; no luck with this stupid poop
-//    }
 
     // Show a specified preference configuration in the configuration editor
     private void showPreferenceConfiguration(PreferenceConfiguration configuration) {
-       movieTitleLabel.setText("");
-       for( int i = 0; i < genreComboBox.getItemCount(); i++ ) {
-           if(configuration.getGenres().compareTo(genreComboBox.getItemAt(i).toString()) == 0){
-               genreComboBox.setSelectedIndex(i);
-               break;
-           }
-       }
+
+       setGenreCheckBoxesFromConfiguration(configuration.getGenres());
+       setRatingCheckBoxesFromConfiguration(configuration.getRatings());
 
        if(configuration.getAnyYearFlag() == 'Y') { // configuration is any year
            anyYearCheckBox.setSelected(true);
@@ -173,16 +157,41 @@ public class MainProgramForm {
            releaseYearToComboBox.setSelectedIndex(configuration.getReleaseYearTo() - YearConstants.EARLIEST_YEAR);
        }
 
-       for( int i = 0; i < ratingComboBox.getItemCount(); i++ ) {
-           if(configuration.getGenres().compareTo(ratingComboBox.getItemAt(i).toString()) == 0){
-               ratingComboBox.setSelectedIndex(i);
-               break;
-           }
-       }
-//
-//       directorTextField.setText(configuration.getDirector());
-//
-//    }
+       directorTextField.setText(configuration.getDirector());
+
+    }
+
+    private void setGenreCheckBoxesFromConfiguration(char[] genres) {
+        if(genres[Genres.ACTION_ADVENTURE_INDEX] == 'Y') actionAdventureCheckBox.setSelected(true);
+        if(genres[Genres.HORROR_INDEX] == 'Y') horrorCheckBox.setSelected(true);
+        if(genres[Genres.KIDS_FAMILY_INDEX] == 'Y') kidsFamilyCheckBox.setSelected(true);
+        if(genres[Genres.DRAMA_INDEX] == 'Y') dramaCheckBox.setSelected(true);
+        if(genres[Genres.SCIFI_FANTASY_INDEX] == 'Y') sciFiFantasyCheckBox.setSelected(true);
+        if(genres[Genres.COMEDY_INDEX] == 'Y') comedyCheckBox.setSelected(true);
+    }
+
+    private void setRatingCheckBoxesFromConfiguration(char[] ratings) {
+        if(ratings[Ratings.R_INDEX] == 'Y') rCheckBox.setSelected(true);
+        if(ratings[Ratings.PG13_INDEX] == 'Y') PG13CheckBox.setSelected(true);
+        if(ratings[Ratings.PG_INDEX] == 'Y') PGCheckBox.setSelected(true);
+        if(ratings[Ratings.G_INDEX] == 'Y') gCheckBox.setSelected(true);
+    }
+
+    private void setGenreCheckBoxesEmpty() {
+        actionAdventureCheckBox.setSelected(false);
+        horrorCheckBox.setSelected(false);
+        dramaCheckBox.setSelected(false);
+        kidsFamilyCheckBox.setSelected(false);
+        comedyCheckBox.setSelected(false);
+        sciFiFantasyCheckBox.setSelected(false);
+    }
+
+    private void setRatingCheckBoxesEmpty() {
+        rCheckBox.setSelected(false);
+        PG13CheckBox.setSelected(false);
+        PGCheckBox.setSelected(false);
+        gCheckBox.setSelected(false);
+    }
 
     /*
      * ACTION LISTENERS
@@ -261,7 +270,16 @@ public class MainProgramForm {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                if(saveConfigurationAsTextField.getText().compareTo("") == 0) {
+                    provideANameForLabel.setForeground(Color.RED);
+                    return;
+                }
                 setSaveEnabled(false);
+                provideANameForLabel.setForeground(Color.BLACK);
+                dataLayer.insertConfiguration(userId, new PreferenceConfiguration(-1, saveConfigurationAsTextField.getText(),
+                        includeAnyYear, (int) releaseYearFromComboBox.getSelectedItem(), (int) releaseYearToComboBox.getSelectedItem(),
+                        directorTextField.getText(), ratingsFlags, genresFlags));
             }
         });
 
@@ -277,6 +295,10 @@ public class MainProgramForm {
             public void itemStateChanged(ItemEvent e) {
                 if (configurationsComboBox.getSelectedItem().toString().compareTo(NEW_CONFIGURATION) == 0) {// No config
                     initializeComboBoxes();
+                    directorTextField.setText("");
+                    anyYearCheckBox.setSelected(false);
+                    setGenreCheckBoxesEmpty();
+                    setRatingCheckBoxesEmpty();
                     if(configurationIsEdited) {
                         setSaveEnabled(false);
                     }
@@ -295,13 +317,15 @@ public class MainProgramForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(configurationIsEdited){ // if any configuration has been edited, use the contents of the editor
-                    movieGenerated = dataLayer.generateMovie(new PreferenceConfiguration(userId, "", includeAnyYear,
+                    movieGenerated = dataLayer.generateMovie(new PreferenceConfiguration(-1, "", includeAnyYear,
                             (int) releaseYearFromComboBox.getSelectedItem(), (int) releaseYearToComboBox.getSelectedItem(),
-                            directorTextField.getText(), ratingComboBox.getSelectedItem().toString(),
-                            genreComboBox.getSelectedItem().toString()), includeWatchedMovies);
+                            directorTextField.getText(), ratingsFlags,
+                            genresFlags), includeWatchedMovies);
+                    displayGeneratedMovie();
                 } else  {
                     movieGenerated = dataLayer.generateMovie((PreferenceConfiguration) configurationsComboBox.getSelectedItem(),
                             includeWatchedMovies);
+                    displayGeneratedMovie();
                 }
             }
         });
@@ -315,7 +339,211 @@ public class MainProgramForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 movieGenerated = dataLayer.generateRandomMovie();
-                displayGeneratedMovie();
+                if(movieGenerated != null) displayGeneratedMovie();
+                else generatedMovieLabel.setText(Movie.MOVIE_ERROR_STRING);
+            }
+        });
+
+        /*
+         *  GENRE CHECK BOXES
+         */
+        actionAdventureCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    genresFlags[Genres.ACTION_ADVENTURE_INDEX] = 'Y';
+                } else {
+                    genresFlags[Genres.ACTION_ADVENTURE_INDEX] = 'N';
+                }
+            }
+        });
+
+        horrorCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    genresFlags[Genres.HORROR_INDEX] = 'Y';
+                } else {
+                    genresFlags[Genres.HORROR_INDEX] = 'N';
+                }
+            }
+        });
+
+        kidsFamilyCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    genresFlags[Genres.KIDS_FAMILY_INDEX] = 'Y';
+                } else {
+                    genresFlags[Genres.KIDS_FAMILY_INDEX] = 'N';
+                }
+            }
+        });
+
+        dramaCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    genresFlags[Genres.DRAMA_INDEX] = 'Y';
+                } else {
+                    genresFlags[Genres.DRAMA_INDEX] = 'N';
+                }
+            }
+        });
+
+        sciFiFantasyCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    genresFlags[Genres.SCIFI_FANTASY_INDEX] = 'Y';
+                } else {
+                    genresFlags[Genres.SCIFI_FANTASY_INDEX] = 'N';
+                }
+            }
+        });
+
+        comedyCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    genresFlags[Genres.COMEDY_INDEX] = 'Y';
+                } else {
+                    genresFlags[Genres.COMEDY_INDEX] = 'N';
+                }
+            }
+        });
+
+        /*
+         * RATING CHECK BOXES
+         */
+        rCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    ratingsFlags[Ratings.R_INDEX] = 'Y';
+                } else {
+                    ratingsFlags[Ratings.R_INDEX] = 'N';
+                }
+            }
+        });
+
+        PG13CheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    ratingsFlags[Ratings.PG13_INDEX] = 'Y';
+                } else {
+                    ratingsFlags[Ratings.PG13_INDEX] = 'N';
+                }
+            }
+        });
+
+        PGCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    ratingsFlags[Ratings.PG_INDEX] = 'Y';
+                } else {
+                    ratingsFlags[Ratings.PG_INDEX] = 'N';
+                }
+            }
+        });
+
+        gCheckBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) { // if is selected
+                    ratingsFlags[Ratings.G_INDEX] = 'Y';
+                } else {
+                    ratingsFlags[Ratings.G_INDEX] = 'N';
+                }
+                if(configurationIsEdited) { //TODO Fix each check box to show if it is edited
+                    setSaveEnabled(true);
+                }
+            }
+        });
+
+        watchHaveWatchedButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                watchHaveWatchedButton.setEnabled(false);
+                dataLayer.insertUserHasWatched(userId, movieGenerated.getMovieId());
+                refreshMovieCountLabel();
             }
         });
     }

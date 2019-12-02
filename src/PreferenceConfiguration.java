@@ -1,10 +1,11 @@
 import Constants.DataTables.HasTable;
 import Constants.DataTables.PreferenceConfigurationTable;
+import Constants.Genres;
+import Constants.Ratings;
 
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class PreferenceConfiguration extends Component {
 
@@ -60,10 +61,10 @@ public class PreferenceConfiguration extends Component {
         char[] array = new char[4];
 
         try {
-            array[0] = result.getString(PreferenceConfigurationTable.RATING_HAS_R_COLUMN_NAME).charAt(0);
-            array[1] = result.getString(PreferenceConfigurationTable.RATING_HAS_PG13_COLUMN_NAME).charAt(0);
-            array[2] = result.getString(PreferenceConfigurationTable.RATING_HAS_PG_COLUMN_NAME).charAt(0);
-            array[3] = result.getString(PreferenceConfigurationTable.RATING_HAS_G_COLUMN_NAME).charAt(0);
+            array[Ratings.R_INDEX] = result.getString(PreferenceConfigurationTable.RATING_HAS_R_COLUMN_NAME).charAt(0);
+            array[Ratings.PG13_INDEX] = result.getString(PreferenceConfigurationTable.RATING_HAS_PG13_COLUMN_NAME).charAt(0);
+            array[Ratings.PG_INDEX] = result.getString(PreferenceConfigurationTable.RATING_HAS_PG_COLUMN_NAME).charAt(0);
+            array[Ratings.G_INDEX] = result.getString(PreferenceConfigurationTable.RATING_HAS_G_COLUMN_NAME).charAt(0);
         } catch ( SQLException e ) {
             return null;
         }
@@ -75,12 +76,12 @@ public class PreferenceConfiguration extends Component {
         char[] array = new char[6];
 
         try {
-            array[0] = result.getString(PreferenceConfigurationTable.GENRE_HAS_ACTION_ADVENTURE_COLUMN_NAME).charAt(0);
-            array[1] = result.getString(PreferenceConfigurationTable.GENRE_HAS_HORROR_COLUMN_NAME).charAt(0);
-            array[2] = result.getString(PreferenceConfigurationTable.GENRE_HAS_KIDS_FAMILY_COLUMN_NAME).charAt(0);
-            array[3] = result.getString(PreferenceConfigurationTable.GENRE_HAS_DRAMA_COLUMN_NAME).charAt(0);
-            array[4] = result.getString(PreferenceConfigurationTable.GENRE_HAS_COMEDY_COLUMN_NAME).charAt(0);
-            array[5] = result.getString(PreferenceConfigurationTable.GENRE_HAS_SCIFI_FANTASY_COLUMN_NAME).charAt(0);
+            array[Genres.ACTION_ADVENTURE_INDEX] = result.getString(PreferenceConfigurationTable.GENRE_HAS_ACTION_ADVENTURE_COLUMN_NAME).charAt(0);
+            array[Genres.HORROR_INDEX] = result.getString(PreferenceConfigurationTable.GENRE_HAS_HORROR_COLUMN_NAME).charAt(0);
+            array[Genres.KIDS_FAMILY_INDEX] = result.getString(PreferenceConfigurationTable.GENRE_HAS_KIDS_FAMILY_COLUMN_NAME).charAt(0);
+            array[Genres.DRAMA_INDEX] = result.getString(PreferenceConfigurationTable.GENRE_HAS_DRAMA_COLUMN_NAME).charAt(0);
+            array[Genres.COMEDY_INDEX] = result.getString(PreferenceConfigurationTable.GENRE_HAS_COMEDY_COLUMN_NAME).charAt(0);
+            array[Genres.SCIFI_FANTASY_INDEX] = result.getString(PreferenceConfigurationTable.GENRE_HAS_SCIFI_FANTASY_COLUMN_NAME).charAt(0);
         } catch ( SQLException e ) {
             return null;
         }
@@ -123,7 +124,7 @@ public class PreferenceConfiguration extends Component {
 
     public String getDirector() { return director; }
 
-    public char[] getRating() { return ratings; }
+    public char[] getRatings() { return ratings; }
 
     public char[] getGenres() { return genres; }
 

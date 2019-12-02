@@ -24,4 +24,10 @@ public enum Ratings {
         else if(this == G) return "G";
         else return "Any Rating"; // NO_RATING or error
     }
+
+    public static final int R_INDEX = 0;
+    public static final int PG13_INDEX = 1;
+    public static final int PG_INDEX = 2;
+    public static final int G_INDEX = 3;
+
 }
