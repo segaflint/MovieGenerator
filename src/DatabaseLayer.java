@@ -194,18 +194,20 @@ public class DatabaseLayer {
             char[] genres = configuration.getGenres();
             sqlString = sqlString + " AND " + MovieTable.GENRE_COLUMN_NAME + " IN ( ";
             for (int i = 0; i < genres.length; i++) {
-                if (i == Genres.ACTION_ADVENTURE_INDEX) {
-                    sqlString = sqlString + Genres.ACTION_ADVENTURE.toString() + ", ";
-                } else if (i == Genres.HORROR_INDEX) {
-                    sqlString = sqlString + Genres.HORROR.toString() + ", ";
-                } else if (i == Genres.KIDS_FAMILY_INDEX) {
-                    sqlString = sqlString + Genres.KIDS_FAMILY.toString() + ", ";
-                } else if (i == Genres.DRAMA_INDEX) {
-                    sqlString = sqlString + Genres.DRAMA.toString() + ", ";
-                } else if (i == Genres.COMEDY_INDEX) {
-                    sqlString = sqlString + Genres.COMEDY.toString() + ", ";
-                } else if (i == Genres.SCIFI_FANTASY_INDEX) {
-                    sqlString = sqlString + Genres.SCIFI_FANTASY.toString() + ", ";
+                if (genres[i] =='Y') {
+                    if (i == Genres.ACTION_ADVENTURE_INDEX) {
+                        sqlString = sqlString + Genres.ACTION_ADVENTURE.toString() + ", ";
+                    } else if (i == Genres.HORROR_INDEX) {
+                        sqlString = sqlString + Genres.HORROR.toString() + ", ";
+                    } else if (i == Genres.KIDS_FAMILY_INDEX) {
+                        sqlString = sqlString + Genres.KIDS_FAMILY.toString() + ", ";
+                    } else if (i == Genres.DRAMA_INDEX) {
+                        sqlString = sqlString + Genres.DRAMA.toString() + ", ";
+                    } else if (i == Genres.COMEDY_INDEX) {
+                        sqlString = sqlString + Genres.COMEDY.toString() + ", ";
+                    } else if (i == Genres.SCIFI_FANTASY_INDEX) {
+                        sqlString = sqlString + Genres.SCIFI_FANTASY.toString() + ", ";
+                    }                                                                              
                 }
 
             }
