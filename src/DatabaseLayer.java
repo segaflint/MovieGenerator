@@ -159,108 +159,90 @@ public class DatabaseLayer {
         //CalebTODO 3
 
         String sqlString = "SELECT * FROM " + MovieTable.TABLE_NAME +
-                " WHERE " + MovieTable.TITLE_COLUMN_NAME  + " = " + MovieTable.TITLE_COLUMN_NAME;
+                " WHERE " + MovieTable.TITLE_COLUMN_NAME + " = " + MovieTable.TITLE_COLUMN_NAME;
 
-        if(configuration.getAnyYearFlag() == 'N')   {
+        if (configuration.getAnyYearFlag() == 'N') {
             sqlString = sqlString + " AND " + MovieTable.RELEASE_YEAR_COLUMN_NAME + " BETWEEN " + configuration.getReleaseYearFrom()
                     + " AND " + configuration.getReleaseYearTo();
         }
 
-        if(!configuration.hasNoRatings()) {
+        if (!configuration.hasNoRatings()) {
             char[] ratings = configuration.getRatings();
             sqlString = sqlString + " AND " + MovieTable.RATING_COLUMN_NAME + " IN ( ";
-            for(int i = 0; i < ratings.length; i++) { // iterate through ratingsflag array
-                if(ratings[i] == 'Y') { // if this rating is flagged 'Y' Add it to the string
-                    if( i == Ratings.R_INDEX ) {
+            for (int i = 0; i < ratings.length; i++) { // iterate through ratingsflag array
+                if (ratings[i] == 'Y') { // if this rating is flagged 'Y' Add it to the string
+                    if (i == Ratings.R_INDEX) {
                         sqlString = sqlString + Ratings.R.toString() + ", ";
-                    }
-                    else if ( i == Ratings.PG13_INDEX ) {
-                         sqlString = sqlString + Ratings.PG13.toString() + ", ";
-                    }
-                    else if ( i == Ratings.PG_INDEX ) {
-                        sqlString = sqlString + Ratings.PG.toString() + ", " ;
-                    }
-                    else if ( i == Ratings.G_INDEX ) {
-                         sqlString = sqlString + Ratings.G.toString() + ", " ;
+                    } else if (i == Ratings.PG13_INDEX) {
+                        sqlString = sqlString + Ratings.PG13.toString() + ", ";
+                    } else if (i == Ratings.PG_INDEX) {
+                        sqlString = sqlString + Ratings.PG.toString() + ", ";
+                    } else if (i == Ratings.G_INDEX) {
+                        sqlString = sqlString + Ratings.G.toString() + ", ";
                     }
                 }
             }
             sqlString = sqlString + "'' )";
         }
 
-        if(!(configuration.getDirector().compareTo("") == 0)) { // if the string is not empty, you will query based on the director
+        if (!(configuration.getDirector().compareTo("") == 0)) { // if the string is not empty, you will query based on the director
             // AND Director LIKE 'director%String%'
             sqlString = sqlString + " AND Director LIKE " + configuration.getDirector().toString() + "% ";
         }
 
-        if(!configuration.hasNoGenres()) {
-                char[] genres = configuration.getGenres();
-                sqlString = sqlString + " AND " + MovieTable.GENRE_COLUMN_NAME + " IN ( ";
-                for (int i = 0; i < genres.length; i++ ) {
-                    if ( i == Genres.ACTION_ADVENTURE_INDEX ) {
-                        sqlString = sqlString + Genres.ACTION_ADVENTURE.toString() + ", ";
-                    }
-                    else if ( i == Genres.HORROR_INDEX ) {
-                        sqlString = sqlString + Genres.HORROR.toString() + ", ";
-                    }
-                    else if ( i == Genres.KIDS_FAMILY_INDEX ) {
-                        sqlString = sqlString + Genres.KIDS_FAMILY.toString() + ", ";
-                    }
-                    else if ( i == Genres.DRAMA_INDEX ) {
-                        sqlString = sqlString + Genres.DRAMA.toString() + ", ";
-                    }
-                    else if ( i == Genres.COMEDY_INDEX ) {
-                        sqlString = sqlString + Genres.COMEDY.toString() + ", ";
-                    }
-                    else if ( i == Genres.SCIFI_FANTASY_INDEX ) {
-                        sqlString = sqlString + Genres.SCIFI_FANTASY.toString() + ", ";
-                    }
-
+        if (!configuration.hasNoGenres()) {
+            char[] genres = configuration.getGenres();
+            sqlString = sqlString + " AND " + MovieTable.GENRE_COLUMN_NAME + " IN ( ";
+            for (int i = 0; i < genres.length; i++) {
+                if (i == Genres.ACTION_ADVENTURE_INDEX) {
+                    sqlString = sqlString + Genres.ACTION_ADVENTURE.toString() + ", ";
+                } else if (i == Genres.HORROR_INDEX) {
+                    sqlString = sqlString + Genres.HORROR.toString() + ", ";
+                } else if (i == Genres.KIDS_FAMILY_INDEX) {
+                    sqlString = sqlString + Genres.KIDS_FAMILY.toString() + ", ";
+                } else if (i == Genres.DRAMA_INDEX) {
+                    sqlString = sqlString + Genres.DRAMA.toString() + ", ";
+                } else if (i == Genres.COMEDY_INDEX) {
+                    sqlString = sqlString + Genres.COMEDY.toString() + ", ";
+                } else if (i == Genres.SCIFI_FANTASY_INDEX) {
+                    sqlString = sqlString + Genres.SCIFI_FANTASY.toString() + ", ";
                 }
-                sqlString = sqlString + "'' )";
+
+            }
+            sqlString = sqlString + "'' )";
         }
 
-        //TODO: Caleb go from here
+        if ( includeWatchedMovies == false ) {
+            sqlString = sqlString + " EXCEPT SELECT " + MovieTable.MOVIE_ID_COLUMN_NAME + ", " + MovieTable.GENRE_COLUMN_NAME
+                    + ", " + MovieTable.GENRE_COLUMN_NAME + ", " + MovieTable.RELEASE_YEAR_COLUMN_NAME + ", " +
+                    MovieTable.RATING_COLUMN_NAME + ", " + MovieTable.DIRECTOR_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME
+                    + " NATURAL JOIN " + HasWatchedTable.TABLE_NAME + " WHERE " + HasWatchedTable.USER_ID_COLUMN_NAME +
+                    " = " + userId;
+        }
+
+        sqlString = sqlString + ";";
+        
         ResultSet result;
         Movie movie;
+
+        PreparedStatement stmt = null;
+
         try {
 
-            String sql;
-
-            if ( includeWatchedMovies == true ) { // possibly has LIKE, IN and
-
-                sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " + HasWatchedTable.TABLE_NAME +
-                        " JOIN " + UserTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME +
-                        " WHERE " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME
-                        + " = " + configuration;
-
-            } else { // uses MINUS set operator
-                sql = "SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
-                        HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
-                        " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
-                        HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
-                        PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
-                        PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + " MINUS " +
-                        " (SELECT " + MovieTable.TITLE_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME + " JOIN " +
-                        HasTable.TABLE_NAME + " JOIN " + PreferenceConfigurationTable.TABLE_NAME + " JOIN " + HasTable.TABLE_NAME +
-                        " ON " + MovieTable.MOVIE_ID_COLUMN_NAME + " = " + HasTable.USER_ID_COLUMN_NAME + " ON " +
-                        HasTable.USER_ID_COLUMN_NAME + " = " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " ON " +
-                        PreferenceConfigurationTable.TABLE_NAME + " = " + HasTable.CONFIGURATION_ID_COLUMN_NAME + " WHERE " +
-                        HasTable.CONFIGURATION_ID_COLUMN_NAME + " = " + configuration + ") ";
-            }
-
-            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt = connection.prepareStatement(sqlString);
             result = stmt.executeQuery();
 
             movie = (Movie) result;
 
             return movie;
 
-        } catch (SQLException e) {
-            return null;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-
+        return null;
     }
+
+
 
     public Movie generateRandomMovie(){//query1 uses count(*) for count of Movies query2 USES OFFSET
         int totalMoviesCount = 0;
