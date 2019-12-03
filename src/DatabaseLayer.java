@@ -239,9 +239,8 @@ public class DatabaseLayer {
             return movie;
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            return null;
         }
-        return null;
     }
 
 
