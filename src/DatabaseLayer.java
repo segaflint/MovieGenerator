@@ -1,6 +1,7 @@
 import java.sql.*;
 
 import Constants.DataTables.*;
+import Constants.Genres;
 import Constants.Ratings;
 
 import java.text.SimpleDateFormat;
@@ -189,6 +190,34 @@ public class DatabaseLayer {
 
         if(!(configuration.getDirector().compareTo("") == 0)) { // if the string is not empty, you will query based on the director
             // AND Director LIKE 'director%String%'
+            sqlString = sqlString + " AND Director LIKE " + configuration.getDirector().toString() + "% ";
+        }
+
+        if(!configuration.hasNoGenres()) {
+                char[] genres = configuration.getGenres();
+                sqlString = sqlString + " AND " + MovieTable.GENRE_COLUMN_NAME + " IN ( ";
+                for (int i = 0; i < genres.length; i++ ) {
+                    if ( i == Genres.ACTION_ADVENTURE_INDEX ) {
+                        sqlString = sqlString + Genres.ACTION_ADVENTURE.toString() + ", ";
+                    }
+                    else if ( i == Genres.HORROR_INDEX ) {
+                        sqlString = sqlString + Genres.HORROR.toString() + ", ";
+                    }
+                    else if ( i == Genres.KIDS_FAMILY_INDEX ) {
+                        sqlString = sqlString + Genres.KIDS_FAMILY.toString() + ", ";
+                    }
+                    else if ( i == Genres.DRAMA_INDEX ) {
+                        sqlString = sqlString + Genres.DRAMA.toString() + ", ";
+                    }
+                    else if ( i == Genres.COMEDY_INDEX ) {
+                        sqlString = sqlString + Genres.COMEDY.toString() + ", ";
+                    }
+                    else if ( i == Genres.SCIFI_FANTASY_INDEX ) {
+                        sqlString = sqlString + Genres.SCIFI_FANTASY.toString() + ", ";
+                    }
+
+                }
+                sqlString = sqlString + "'' )";
         }
 
         //TODO: Caleb go from here
