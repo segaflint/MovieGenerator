@@ -11,6 +11,7 @@ public class Movie {
     private int releaseYear;
     private String rating;
     private String director;
+    private boolean noMovieExists = false;
 
     public static final String MOVIE_ERROR_STRING = "Something went wrong getting a movie.";
 
@@ -41,9 +42,14 @@ public class Movie {
         }
     }
 
+    public Movie(boolean noSuchMovieExists) {
+        noMovieExists = noSuchMovieExists;
+    }
+
     @Override
     public String toString() {
-        return title + "(" + releaseYear + ") by " + director + ", rated " + rating + ", " + genre;
+        if(!noMovieExists) return title + "(" + releaseYear + ") by " + director + ", rated " + rating + ", " + genre;
+        else return "No such movie exists.";
     }
 
     public int getMovieId() {

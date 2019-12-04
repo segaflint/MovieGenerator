@@ -155,7 +155,7 @@ public class DatabaseLayer {
     }
 
     // Generate a movie based on the given preference configuration
-    public Movie generateMovie(int userId, PreferenceConfiguration configuration, boolean includeWatchedMovies) {
+    public ArrayList<Movie> generateMovie(int userId, PreferenceConfiguration configuration, boolean includeWatchedMovies) {
         //CalebTODO 3
 
         String sqlString = "SELECT * FROM " + MovieTable.TABLE_NAME +
@@ -172,13 +172,13 @@ public class DatabaseLayer {
             for (int i = 0; i < ratings.length; i++) { // iterate through ratingsflag array
                 if (ratings[i] == 'Y') { // if this rating is flagged 'Y' Add it to the string
                     if (i == Ratings.R_INDEX) {
-                        sqlString = sqlString + Ratings.R.toString() + ", ";
+                        sqlString = sqlString + "'" + Ratings.R.toString() + "', ";
                     } else if (i == Ratings.PG13_INDEX) {
-                        sqlString = sqlString + Ratings.PG13.toString() + ", ";
+                        sqlString = sqlString + "'" +  Ratings.PG13.toString() + "', ";
                     } else if (i == Ratings.PG_INDEX) {
-                        sqlString = sqlString + Ratings.PG.toString() + ", ";
+                        sqlString = sqlString + "'" +  Ratings.PG.toString() + "', ";
                     } else if (i == Ratings.G_INDEX) {
-                        sqlString = sqlString + Ratings.G.toString() + ", ";
+                        sqlString = sqlString + "'" +  Ratings.G.toString() + "', ";
                     }
                 }
             }
@@ -186,8 +186,7 @@ public class DatabaseLayer {
         }
 
         if (!(configuration.getDirector().compareTo("") == 0)) { // if the string is not empty, you will query based on the director
-            // AND Director LIKE 'director%String%'
-            sqlString = sqlString + " AND Director LIKE " + configuration.getDirector().toString() + "% ";
+            sqlString = sqlString + " AND Director LIKE '" + configuration.getDirector().toString() + "'";
         }
 
         if (!configuration.hasNoGenres()) {
@@ -196,17 +195,17 @@ public class DatabaseLayer {
             for (int i = 0; i < genres.length; i++) {
                 if (genres[i] =='Y') {
                     if (i == Genres.ACTION_ADVENTURE_INDEX) {
-                        sqlString = sqlString + Genres.ACTION_ADVENTURE.toString() + ", ";
+                        sqlString = sqlString + "'" + Genres.ACTION_ADVENTURE.toString() + "', ";
                     } else if (i == Genres.HORROR_INDEX) {
-                        sqlString = sqlString + Genres.HORROR.toString() + ", ";
+                        sqlString = sqlString + "'" + Genres.HORROR.toString() + "', ";
                     } else if (i == Genres.KIDS_FAMILY_INDEX) {
-                        sqlString = sqlString + Genres.KIDS_FAMILY.toString() + ", ";
+                        sqlString = sqlString + "'" + Genres.KIDS_FAMILY.toString() + "', ";
                     } else if (i == Genres.DRAMA_INDEX) {
-                        sqlString = sqlString + Genres.DRAMA.toString() + ", ";
+                        sqlString = sqlString + "'" + Genres.DRAMA.toString() + "', ";
                     } else if (i == Genres.COMEDY_INDEX) {
-                        sqlString = sqlString + Genres.COMEDY.toString() + ", ";
+                        sqlString = sqlString + "'" + Genres.COMEDY.toString() + "', ";
                     } else if (i == Genres.SCIFI_FANTASY_INDEX) {
-                        sqlString = sqlString + Genres.SCIFI_FANTASY.toString() + ", ";
+                        sqlString = sqlString + "'" + Genres.SCIFI_FANTASY.toString() + "', ";
                     }                                                                              
                 }
 
@@ -221,26 +220,26 @@ public class DatabaseLayer {
                     + " NATURAL JOIN " + HasWatchedTable.TABLE_NAME + " WHERE " + HasWatchedTable.USER_ID_COLUMN_NAME +
                     " = " + userId;
         }
-
-        sqlString = sqlString + ";";
         
         ResultSet result;
-        Movie movie;
+        Movie movie = null;
 
         PreparedStatement stmt = null;
+        ArrayList<Movie> movieList = new ArrayList<>();
 
         try {
 
             stmt = connection.prepareStatement(sqlString);
             result = stmt.executeQuery();
 
-            movie = (Movie) result;
-
-            return movie;
+            while(result.next()) movieList.add(new Movie(result));
 
         } catch (SQLException ex) {
-            return null;
+            return movieList;
         }
+        if(movieList.isEmpty()) movieList.add( new Movie(true) );
+
+        return movieList;
     }
 
 

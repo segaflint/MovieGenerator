@@ -344,15 +344,20 @@ public class MainProgramForm {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                ArrayList<Movie> movieList = new ArrayList<>();
                 if(configurationIsEdited){ // if any configuration has been edited, use the contents of the editor
-                    movieGenerated = dataLayer.generateMovie(userId, new PreferenceConfiguration(-1, "", includeAnyYear,
+                    movieList = dataLayer.generateMovie(userId, new PreferenceConfiguration(-1, "", includeAnyYear,
                             (int) releaseYearFromComboBox.getSelectedItem(), (int) releaseYearToComboBox.getSelectedItem(),
                             directorTextField.getText(), ratingsFlags,
                             genresFlags), includeWatchedMovies);
+                    int randomIndex = (int) (Math.random() * movieList.size());
+                    movieGenerated = movieList.get(randomIndex);
                     displayGeneratedMovie();
                 } else  {
-                    movieGenerated = dataLayer.generateMovie(userId, (PreferenceConfiguration) configurationsComboBox.getSelectedItem(),
+                   movieList = dataLayer.generateMovie(userId, (PreferenceConfiguration) configurationsComboBox.getSelectedItem(),
                             includeWatchedMovies);
+                    int randomIndex = (int) (Math.random() * movieList.size());
+                    movieGenerated = movieList.get(randomIndex);
                     displayGeneratedMovie();
                 }
             }
