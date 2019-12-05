@@ -214,7 +214,7 @@ public class DatabaseLayer {
         }
 
         if ( includeWatchedMovies == false ) {
-            sqlString = sqlString + " EXCEPT SELECT " + MovieTable.MOVIE_ID_COLUMN_NAME + ", " + MovieTable.GENRE_COLUMN_NAME
+            sqlString = sqlString + " EXCEPT SELECT " + MovieTable.MOVIE_ID_COLUMN_NAME + ", " + MovieTable.TITLE_COLUMN_NAME
                     + ", " + MovieTable.GENRE_COLUMN_NAME + ", " + MovieTable.RELEASE_YEAR_COLUMN_NAME + ", " +
                     MovieTable.RATING_COLUMN_NAME + ", " + MovieTable.DIRECTOR_COLUMN_NAME + " FROM " + MovieTable.TABLE_NAME
                     + " NATURAL JOIN " + HasWatchedTable.TABLE_NAME + " WHERE " + HasWatchedTable.USER_ID_COLUMN_NAME +
@@ -310,56 +310,32 @@ public class DatabaseLayer {
 
     // returns the configurationId if successful insertion of configuration, -1 otherwise
     public int insertConfiguration(int userId, PreferenceConfiguration configuration) {
-//        ResultSet results;
-//        int configurationId = 0; // if configurationId is 0, there is no configuration in the database that corresponds
-//        // has the IN operator and LIKE depending on the cases
-//        String query = "SELECT " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " FROM " + PreferenceConfigurationTable.TABLE_NAME +
-//                whereEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME, configuration.getReleaseYearFrom()) +
-//                andEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME, configuration.getReleaseYearTo()) +
-//                andEqualsString(PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME, configuration.getDirector()) +
-//                getGenresAndEqualsString(configuration) + getRatingsAndEqualsString(configuration) +
-//                andEqualsString(PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME, String.valueOf(configuration.getAnyYearFlag()));
-//
-//        String sql = "INSERT INTO " + PreferenceConfigurationTable.TABLE_NAME+"(" + PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME +
-//                ", " + PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME + ", " + PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME +
-//                ", " + PreferenceConfigurationTable.RATING_COLUMN_NAME + ", " + PreferenceConfigurationTable.GENRE_COLUMN_NAME +
-//                ", " + PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME + ") VALUES ( ?, ?, '?', '?', '?', '?' )";
-//
-//        String sql2 = "INSERT INTO " + HasTable.TABLE_NAME + "(" + HasTable.USER_ID_COLUMN_NAME+ ", " + HasTable.CONFIGURATION_NAME_COLUMN_NAME +
-//                ", " + HasTable.CONFIGURATION_ID_COLUMN_NAME +") VALUES ( ?, '?', ? )";
-//
-//        PreparedStatement stmt = null;
-//        PreparedStatement stmt2 = null;
-//
-//        try {
-//
-//            stmt = connection.prepareStatement(sql);
-//            results = stmt.executeQuery();
-//
-//            stmt.setInt(1, configuration.getReleaseYearFrom());
-//            stmt.setInt(2, configuration.getReleaseYearTo());
-//            stmt.setString(3, configuration.getDirector());
-//            stmt.setString(4, configuration.getRatings());
-//            stmt.setString(5, configuration.getGenres());
-//            stmt.setString(6, String.valueOf(configuration.getAnyYearFlag()));
-//
-//
-//
-//            stmt2 = connection.prepareStatement(sql2);
-//
-//            stmt2.setInt(1, userId);
-//            stmt2.setString(2, configuration.getConfigurationName());
-//            stmt2.setInt(3, configurationId);
-//
-//            return 0;
-//
-//        } catch (SQLException e) {
-//            return -1;
-//        }
+        int configurationId = -1;
 
-        //First, insert the configuration from the object 'configuration' that was passed in by doing an insert
-        //into preference configurations with 'configuration's and insert into 'has' with the configuration you just made
-        return -1;
+        configurationId = queryConfigurationId(configuration);
+        if(configurationId == -1) { // if the configuration didn't exist, insert it and set the configurationId to new Id
+            configurationId = insertConfiguration(configuration);
+            if(configurationId < 0) {
+                return -1;
+            }
+        }
+
+        String insertIntoHas = "INSERT INTO " + HasTable.TABLE_NAME +  "(" + HasTable.USER_ID_COLUMN_NAME + ", " +
+                HasTable.CONFIGURATION_NAME_COLUMN_NAME + ", " + HasTable.CONFIGURATION_ID_COLUMN_NAME + ") VALUES ( " +
+                userId + ", '" + configuration.getConfigurationName() + "', " + configurationId + " )";
+
+        int rowsAffected = 0;
+        try {
+            PreparedStatement insertStmt = connection.prepareStatement(insertIntoHas);
+            rowsAffected = insertStmt.executeUpdate();
+
+        } catch (SQLException e )  {
+            return -1;
+        }
+
+        if(rowsAffected == 0) return -1;
+
+        return configurationId;
     }
 
     // Insert a new tuple into the user has watched column if the userid and movieId pairing doesnt already exist in the database
@@ -470,30 +446,102 @@ public class DatabaseLayer {
                 " AND " + PreferenceConfigurationTable.GENRE_HAS_SCIFI_FANTASY_COLUMN_NAME + " = '" + genres[5] + "'";
     }
 
+    // get the configurationId based on a specific configuration. If no such configuration exists, return -1
+    private int queryConfigurationId(PreferenceConfiguration configuration) {
+        String checkConfigSQL = "SELECT " + PreferenceConfigurationTable.CONFIGURATION_ID_COLUMN_NAME + " FROM " +
+                PreferenceConfigurationTable.TABLE_NAME + " WHERE " + PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME +
+                " = '" + configuration.getAnyYearFlag() + "'";
 
-//    public ResultSet employeeLookup(String ssn) throws SQLException {
-////        String query = "SELECT * FROM Employee WHERE SSN = %s";
-////        String.format(query, ssn); //Then prepare statement and execute query. no need for stmt.setString
-//        String query = "SELECT * FROM Employee WHERE SSN = ?";
-//        PreparedStatement stmt = connection.prepareStatement(query);
-//        stmt.setString(1, ssn);
-//        ResultSet results = stmt.executeQuery();
-//
-//        return results;
-//    }
+        if( configuration.getAnyYearFlag() != 'Y' ) {// config is on specific range years
+            checkConfigSQL = checkConfigSQL + andEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME,
+                    configuration.getReleaseYearFrom()) + andEqualsInt(PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME,
+                    configuration.getReleaseYearTo());
+        }
 
-//    public int insertEmployee(Employee e) throws  SQLException {
-//        String sql = "INSERT INTO Employee(SSN, Salary, FirstName, MiddleName, LastName) VALUES ( ?, ?, ?, ?, ? )";
-//
-//        PreparedStatement stmt = connection.prepareStatement(sql);
-//        stmt.setString(1, e.getSsn());
-//        stmt.setDouble(2, e.getSalary());
-//        stmt.setString(3, e.getFirstName());
-//        stmt.setString(4, e.getMiddleName());
-//        stmt.setString(5, e.getLastName());
-//
-//        int numRowsAffected = stmt.executeUpdate();
-//        return numRowsAffected;
-//    }
+        // Ratings and genres
+        checkConfigSQL = checkConfigSQL + getGenresAndEqualsString(configuration) + getRatingsAndEqualsString(configuration);
+
+        // Director
+        checkConfigSQL = checkConfigSQL + andEqualsString(PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME, configuration.getDirector());
+
+        ResultSet checkResults;
+        PreferenceConfiguration existingConfiguration = null;
+        try {
+            PreparedStatement checkStmt = connection.prepareStatement(checkConfigSQL);
+            checkResults = checkStmt.executeQuery();
+
+            if(checkResults.next())  existingConfiguration = new PreferenceConfiguration(checkResults);
+
+        } catch ( SQLException e ) {
+            e.printStackTrace();
+        }
+
+        if(existingConfiguration != null) {
+            return existingConfiguration.getConfigurationId();
+        } else return -1;
+
+    }
+
+    // insert a configuration into the PreferenceConfiguration table and return the id of the inserted tuple
+    private int insertConfiguration(PreferenceConfiguration configuration) {
+        String insertString = "INSERT INTO " + PreferenceConfigurationTable.TABLE_NAME + "( " + PreferenceConfigurationTable.RELEASE_YEAR_FROM_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.RELEASE_YEAR_TO_COLUMN_NAME + ", " + PreferenceConfigurationTable.DIRECTOR_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.ANY_YEAR_FLAG_COLUMN_NAME + "," + appendRatingColumnNamesInsert() +
+                "," + appendGenreColumnNamesInsert() + " ) VALUES (" + configuration.getReleaseYearFrom() + ", " +
+                configuration.getReleaseYearTo() + ", '" + configuration.getDirector() + "', '" + configuration.getAnyYearFlag() +
+                "'," + appendRatingFlagValues(configuration.getRatings()) + "," + appendGenreFlagValues(configuration.getGenres()) + " )";
+
+        int resultCount = 0;
+        try{
+            PreparedStatement insertStmt = connection.prepareStatement(insertString);
+            resultCount = insertStmt.executeUpdate();
+        } catch( SQLException e ){
+            e.printStackTrace();
+            System.out.println(insertString);
+        }
+
+        if(resultCount == 0) {
+            return -1; // if return -1 no insert took place
+        }
+
+        int configurationId = -2; //if return is -2 no configuration that was just created found
+        ResultSet configResult;
+
+        configurationId = queryConfigurationId(configuration);
+        if(configurationId == -1) configurationId = -2;
+
+        return configurationId;
+
+    }
+
+    private String appendRatingColumnNamesInsert() {
+        return (" " + PreferenceConfigurationTable.RATING_HAS_R_COLUMN_NAME + ", " + PreferenceConfigurationTable.RATING_HAS_PG13_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.RATING_HAS_PG_COLUMN_NAME + ", " + PreferenceConfigurationTable.RATING_HAS_G_COLUMN_NAME);
+    }
+
+    private String appendGenreColumnNamesInsert() {
+        return (" " + PreferenceConfigurationTable.GENRE_HAS_ACTION_ADVENTURE_COLUMN_NAME + ", " + PreferenceConfigurationTable.GENRE_HAS_HORROR_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.GENRE_HAS_KIDS_FAMILY_COLUMN_NAME + ", " + PreferenceConfigurationTable.GENRE_HAS_DRAMA_COLUMN_NAME +
+                ", " + PreferenceConfigurationTable.GENRE_HAS_COMEDY_COLUMN_NAME + ", " + PreferenceConfigurationTable.GENRE_HAS_SCIFI_FANTASY_COLUMN_NAME);
+    }
+
+
+    // return string " 'Y', 'Y', 'Y', 'Y'" (with Y or N being values based on config values)
+    private String appendRatingFlagValues(char[] ratingsFlags) {
+        String returnString = " ";
+        for(int i = 0; i < ratingsFlags.length-1; i++) {
+            returnString = returnString + "'" + ratingsFlags[i] + "', ";
+        }
+        return returnString + "'" + ratingsFlags[ratingsFlags.length-1] + "'";
+    }
+
+    // return string " 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'" (with Y or N being values based on config values)
+    private String appendGenreFlagValues(char[] genresFlags) {
+        String returnString = " ";
+        for(int i = 0; i < genresFlags.length-1; i++) {
+            returnString = returnString + "'" + genresFlags[i] + "', ";
+        }
+        return returnString + "'" + genresFlags[genresFlags.length-1] + "'";
+    }
 
 }

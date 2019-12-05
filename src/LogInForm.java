@@ -49,6 +49,7 @@ public class LogInForm {
         contextComboBox.addItem("Caleb");
 
         initializeListeners();
+        createNewUserButton.setEnabled(false); // TODO: implement create user in the databaselayer for this feature
 
     }
 

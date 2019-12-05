@@ -131,6 +131,7 @@ public class MainProgramForm {
     private void initializeConfigurationsComboBox() {
         ArrayList<PreferenceConfiguration> configurationArrayList = dataLayer.getUserConfigurations(userId);
 
+        if(configurationsComboBox.getItemCount() > 0) configurationsComboBox.removeAllItems();
         configurationsComboBox.addItem(new PreferenceConfiguration(NEW_CONFIGURATION));
         for (PreferenceConfiguration pc : configurationArrayList) {
             configurationsComboBox.addItem(pc);
@@ -163,18 +164,24 @@ public class MainProgramForm {
 
     private void setGenreCheckBoxesFromConfiguration(char[] genres) {
         if(genres[Genres.ACTION_ADVENTURE_INDEX] == 'Y') actionAdventureCheckBox.setSelected(true);
+        else actionAdventureCheckBox.setSelected(false);
         if(genres[Genres.HORROR_INDEX] == 'Y') horrorCheckBox.setSelected(true);
+        else horrorCheckBox.setSelected(false);
         if(genres[Genres.KIDS_FAMILY_INDEX] == 'Y') kidsFamilyCheckBox.setSelected(true);
+        else kidsFamilyCheckBox.setSelected(false);
         if(genres[Genres.DRAMA_INDEX] == 'Y') dramaCheckBox.setSelected(true);
+        else dramaCheckBox.setSelected(false);
         if(genres[Genres.SCIFI_FANTASY_INDEX] == 'Y') sciFiFantasyCheckBox.setSelected(true);
+        else sciFiFantasyCheckBox.setSelected(false);
         if(genres[Genres.COMEDY_INDEX] == 'Y') comedyCheckBox.setSelected(true);
+        else comedyCheckBox.setSelected(false);
     }
 
     private void setRatingCheckBoxesFromConfiguration(char[] ratings) {
-        if(ratings[Ratings.R_INDEX] == 'Y') rCheckBox.setSelected(true);
-        if(ratings[Ratings.PG13_INDEX] == 'Y') PG13CheckBox.setSelected(true);
-        if(ratings[Ratings.PG_INDEX] == 'Y') PGCheckBox.setSelected(true);
-        if(ratings[Ratings.G_INDEX] == 'Y') gCheckBox.setSelected(true);
+        if(ratings[Ratings.R_INDEX] == 'Y') rCheckBox.setSelected(true); else rCheckBox.setSelected(false);
+        if(ratings[Ratings.PG13_INDEX] == 'Y') PG13CheckBox.setSelected(true); else PG13CheckBox.setSelected(false);
+        if(ratings[Ratings.PG_INDEX] == 'Y') PGCheckBox.setSelected(true); else PGCheckBox.setSelected(false);
+        if(ratings[Ratings.G_INDEX] == 'Y') gCheckBox.setSelected(true); else gCheckBox.setSelected(false);
     }
 
     private void setGenreCheckBoxesEmpty() {
@@ -260,7 +267,17 @@ public class MainProgramForm {
              */
             @Override
             public void itemStateChanged(ItemEvent e) {
-                setSaveEnabled(true);
+                if((int)releaseYearFromComboBox.getSelectedItem() > (int)releaseYearToComboBox.getSelectedItem()) {
+                    setSaveEnabled(false);
+                    provideANameForLabel.setForeground(Color.RED);
+                    provideANameForLabel.setText("Year from can't be greater than year to!");
+                    generateMovieByConfigurationButton.setEnabled(false);
+                } else {
+                    setSaveEnabled(true);
+                    provideANameForLabel.setText("Provide a name for your configuration.");
+                    provideANameForLabel.setForeground(Color.BLACK);
+                    generateMovieByConfigurationButton.setEnabled(true);
+                }
             }
         });
         releaseYearToComboBox.addItemListener(new ItemListener() {
@@ -273,7 +290,17 @@ public class MainProgramForm {
              */
             @Override
             public void itemStateChanged(ItemEvent e) {
-                setSaveEnabled(true);
+                if((int)releaseYearFromComboBox.getSelectedItem() > (int)releaseYearToComboBox.getSelectedItem()) {
+                    setSaveEnabled(false);
+                    provideANameForLabel.setForeground(Color.RED);
+                    provideANameForLabel.setText("Year from can't be greater than year to!");
+                    generateMovieByConfigurationButton.setEnabled(false);
+                } else {
+                    setSaveEnabled(true);
+                    provideANameForLabel.setText("Provide a name for your configuration.");
+                    provideANameForLabel.setForeground(Color.BLACK);
+                    generateMovieByConfigurationButton.setEnabled(true);
+                }
             }
         });
 
@@ -297,16 +324,25 @@ public class MainProgramForm {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                int insertSuccess;
                 if(saveConfigurationAsTextField.getText().compareTo("") == 0) {
                     provideANameForLabel.setForeground(Color.RED);
+                    provideANameForLabel.setText("Provide a name for your configuration");
                     return;
                 }
                 setSaveEnabled(false);
                 provideANameForLabel.setForeground(Color.BLACK);
-                dataLayer.insertConfiguration(userId, new PreferenceConfiguration(-1, saveConfigurationAsTextField.getText(),
+                insertSuccess = dataLayer.insertConfiguration(userId, new PreferenceConfiguration(-1, saveConfigurationAsTextField.getText(),
                         includeAnyYear, (int) releaseYearFromComboBox.getSelectedItem(), (int) releaseYearToComboBox.getSelectedItem(),
                         directorTextField.getText(), ratingsFlags, genresFlags));
+                if(insertSuccess == -1) {
+                    provideANameForLabel.setForeground(Color.RED);
+                    provideANameForLabel.setText("Error saving your configuration");
+                } else {
+                    provideANameForLabel.setForeground(Color.BLACK);
+                    provideANameForLabel.setText("Configuration saved successfully");
+                    initializeConfigurationsComboBox();
+                }
             }
         });
 
